@@ -24,7 +24,7 @@ module riggerIOC{
 		 * @return 返回对应的绑定信息 
 		 */
 		public bind(cls:any){
-			console.log("bind");
+			// console.log("bind");
 			
 			// 查找是否已经有绑定过了
 			let info:InjectionBindInfo = this.findBindInfo(cls);
@@ -37,8 +37,12 @@ module riggerIOC{
 			return info;
 		}
 
+		/**
+		 * 解绑
+		 * @param cls 
+		 */
 		public unbind(cls:any){
-			console.log("unbind");
+			// console.log("unbind");
 			this.disposeBindInfo(cls);
 		}
 
