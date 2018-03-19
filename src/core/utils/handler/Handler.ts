@@ -13,6 +13,7 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+///<reference path="../pool/Pool.ts" />
 module riggerIOC {
 	export class Handler {
 		public static pool: Pool = new Pool();

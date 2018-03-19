@@ -1,6 +1,7 @@
 /*
 * name;
 */
+///<reference path='../models/FightModel.ts'/>
 class FightCommand extends riggerIOC.Command{
     constructor(){
         super();

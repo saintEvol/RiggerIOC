@@ -1,6 +1,9 @@
 /*
 * name;
 */
+///<reference path="../models/FightModel.ts" />
+///<reference path="../signals/StartFightSignal.ts" />
+
 class InitFighterInfoCommand extends riggerIOC.Command{
     constructor(){
         super();

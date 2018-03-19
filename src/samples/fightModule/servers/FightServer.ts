@@ -1,6 +1,7 @@
 /**
 * name 
 */
+///<reference path="../signals/InitFighterInfoSignal.ts" />
 class FightServer extends riggerIOC.Server {
 	@riggerIOC.inject(InitFighterInfoSignal)
 	private initSignal:InitFighterInfoSignal;
