@@ -30,9 +30,8 @@ module riggerIOC{
 
 		/**
 		 * 设置为一次性绑定
-		 * @param cmdCls 
 		 */
-		public abstract once(cmdCls:any):CommandBindInfo;
+		public abstract once():CommandBindInfo;
 
 		/**
 		 * 设置为顺序命令
