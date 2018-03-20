@@ -42,6 +42,11 @@ module riggerIOC {
 			return this;
 		}
 
+		public toValue(value:any):CommandBindInfo{
+			// TODO 等待实现
+			return this;
+		}
+
 		public once(): CommandBindInfo {
 			return this;
 		}

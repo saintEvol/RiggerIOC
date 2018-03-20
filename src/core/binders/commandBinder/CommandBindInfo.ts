@@ -29,6 +29,12 @@ module riggerIOC{
 		public abstract to(cmdCls:any):CommandBindInfo;
 
 		/**
+		 * 绑定到值
+		 * @param cmdValue 
+		 */
+		public abstract toValue(cmdValue:any):CommandBindInfo;
+
+		/**
 		 * 设置为一次性绑定
 		 */
 		public abstract once():CommandBindInfo;

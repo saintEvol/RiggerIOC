@@ -22,7 +22,7 @@ module riggerIOC{
 		/**
 		 * 模块初始化（启动）完成后的回调命令
 		 */	
-		private doneCommand:ModuleDoneCommand;
+		protected doneCommand:ModuleDoneCommand;
 
 		constructor(appContext:ApplicationContext){
 			this.applicationContext = appContext;
