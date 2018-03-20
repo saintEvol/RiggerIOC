@@ -1,0 +1,30 @@
+{
+  "name": "rigger",
+  "version": "1.0.0",
+  "description": "我是代码的搬运工",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rigger"
+  ],
+  "author": "Saint Evol",
+  "license": "ISC",
+  "devDependencies": {
+    "colors": "^1.1.2",
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-filter": "^5.1.0",
+    "gulp-git": "^2.5.2",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sequence": "^1.0.0",
+    "gulp-typescript": "^4.0.1",
+    "merge-stream": "^1.0.1",
+    "require-dir": "^1.0.0",
+    "silly-datetime": "^0.1.2",
+    "typescript": "^2.4.2"
+  }
+}

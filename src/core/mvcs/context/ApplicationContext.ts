@@ -59,14 +59,18 @@ module riggerIOC{
 			return this.commandBinder;
 		}
 
-		protected initializeModuleContexts(){
+		protected async initializeModuleContexts(){
+			let m:ModuleContext;
 			for(var i:number = 0; i < this.modules.length; ++i){
-				this.injectionBinder.bind(this.modules[i]).toValue(new this.modules[i](this));
+				m = new this.modules[i](this);
+				this.injectionBinder.bind(this.modules[i]).toValue(m);
+				await waitFor(m);
 			}
 		}
 
-		protected addModuleContext(contextCls:any){
+		protected addModuleContext(contextCls:any):ApplicationContext{
 			this.modules.push(contextCls);
+			return this;
 		}
 
 		abstract bindInjections():void;

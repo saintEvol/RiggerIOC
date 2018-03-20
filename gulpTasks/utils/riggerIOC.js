@@ -44,4 +44,4 @@ module.exports = {
     makeThirdServiceConfigPath:RiggerIOC.makeThirdServiceConfigPath,
 }
 
-var RiggerUtils = require('./riggerUtils.js');
+var RiggerUtils = require('./riggerIOCUtils.js');

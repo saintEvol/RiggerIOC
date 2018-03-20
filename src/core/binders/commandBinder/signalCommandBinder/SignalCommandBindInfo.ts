@@ -18,6 +18,10 @@
  * 信号与命令的绑定信息类
  */
 module riggerIOC{
+	class CommandInfo {
+		cls:any;
+		inst:any;
+	}
 	export class SignalCommandBindInfo{
 
 		constructor(signal:Signal<any>){
@@ -42,7 +46,7 @@ module riggerIOC{
 		/**
 		 * 绑定的命令的构造函数列表
 		 */
-		private commandsCls:any[];
+		private commandsCls:CommandInfo[];
 
 		/**
 		 * 是否是一次性命令
@@ -59,7 +63,17 @@ module riggerIOC{
 		 * @param cmdCls 
 		 */
 		public to(cmdCls:any):SignalCommandBindInfo{
-			this.commandsCls.push(cmdCls);
+			this.commandsCls.push({cls:cmdCls, inst:null});
+			return this;
+		}
+
+		/**
+		 * 绑定到值，此时会自动进行单例绑定
+		 * @param value 
+		 */
+		public toValue(value:any){
+			// this.toSingleton();
+			this.commandsCls.push({cls:null, inst:value});
 			return this;
 		}
 
@@ -90,10 +104,17 @@ module riggerIOC{
 		 */
 		private async executeCommands(arg?:any){
 			for(var i:number = 0; i < this.commandsCls.length; ++i){
-				let cmd:Command = new this.commandsCls[i];
+				let cmd:Command;
+				let cmdInfo:CommandInfo = this.commandsCls[i];
+				if(cmdInfo.inst){
+					cmd = cmdInfo.inst;
+				}else{
+					cmd = new cmdInfo.cls();
+				} 
+
 				cmd.execute(arg);
 				if(this.isInSequence){
-					await waitForCommand(cmd);
+					await waitFor(cmd);
 				}
 			}
 

@@ -9,5 +9,3 @@ class GameMain {
    
 
 }
-
-new GameMain();

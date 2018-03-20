@@ -35,15 +35,15 @@ module riggerIOC{
 
 	/**
 	 * 等待命令执行完成
-	 * @param cmd 
+	 * @param waitable 
 	 */
-	export function waitForCommand(cmd:Command){
+	export function waitFor(waitable:IWaitable){
 		return new Promise(resolve =>{
-			if(cmd.isDone){
+			if(waitable.isDone()){
 				resolve();
 			}
 			else{
-				cmd.doneCallBack = resolve;				
+				waitable.setDoneCallback(resolve);				
 			}
 		})
 	}

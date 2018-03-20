@@ -5,7 +5,7 @@ var concat = require('gulp-concat'); // 需要安装包
 var rename = require("gulp-rename");
 var fs = require('fs');
 
-var Rigger = require('./rigger.js');
+var Rigger = require('./riggerIOC.js');
 
 var RiggerIOCUtils = {
     removeCommentsInJson: function (str) {
@@ -13,7 +13,7 @@ var RiggerIOCUtils = {
         return ret;
     },
 
-    readJson:function(path){
+    readJson: function (path) {
         return JSON.parse(RiggerIOCUtils.removeCommentsInJson(fs.readFileSync(path)))
     },
 
@@ -23,16 +23,18 @@ var RiggerIOCUtils = {
     createTSProject: function () {
         return ts.createProject({
             module: "commonjs",
+            // outFile:"rigger.min.js",
             target: "es5",
             sourceMap: true,
             experimentalDecorators: true,
+            lib: ["dom", "es2015"],
             emitDecoratorMetadata: true,
             declaration: true
         });
     },
 
-    startWith:function(originStr, str){
-        if(originStr.indexOf(str) == 0){
+    startWith: function (originStr, str) {
+        if (originStr.indexOf(str) == 0) {
             return true;
         }
 
@@ -49,7 +51,7 @@ module.exports = {
      */
     removeCommentsInJson: RiggerIOCUtils.removeCommentsInJson,
 
-    createTSProject:RiggerIOCUtils.createTSProject,
-    readJson:RiggerIOCUtils.readJson,
-    startWith:RiggerIOCUtils.startWith
+    createTSProject: RiggerIOCUtils.createTSProject,
+    readJson: RiggerIOCUtils.readJson,
+    startWith: RiggerIOCUtils.startWith
 }

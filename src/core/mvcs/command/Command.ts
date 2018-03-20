@@ -14,18 +14,23 @@
  *		limitations under the License.
  */
 module riggerIOC{
-	export abstract class Command{
-		public doneCallBack:Function;
-		public get isDone():boolean{
+	export abstract class Command implements IWaitable{
+		private doneCallBack:Function;
+		public isDone():boolean{
 			return this.mIsDone;
 		}
+
 		private mIsDone:boolean = false;
+
+		setDoneCallback(f:Function):void{
+			this.doneCallBack = f;
+		}
 		/**
 		 * 执行命令
 		 */
 		abstract execute(arg?:any):void;
 
-		protected done(){
+		done(){
 			this.mIsDone = true;
 			this.doneCallBack && this.doneCallBack();
 		}

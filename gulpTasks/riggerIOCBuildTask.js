@@ -4,24 +4,21 @@ var sd = require("silly-datetime");
 var colors = require("colors");
 var nodemon = require("gulp-nodemon");
 var runSeq = require("gulp-sequence");
-var RiggerBuildUtils = require("./utils/riggerBuildUtils.js");
-var RiggerUpdateUtils = require("./utils/riggerUpdateUtils.js");
-
 
 gulp.task("rigger-build", ["init-rigger-config"], function(){
-    RiggerBuildUtils.build();
+    RiggerIOCBuildUtils.build();
 })
 
 
 gulp.task("rigger-config", ["init-rigger-config"], function(){
-    return RiggerBuildUtils.reConfig();
+    return RiggerIOCBuildUtils.reConfig();
 })
 
 gulp.task("rigger-update",function(){
-    return RiggerUpdateUtils.updateServices();
+    return RiggerIOCUpdateUtils.updateServices();
 })
 
 
 gulp.task("init-rigger-config", function(){
-    return RiggerBuildUtils.initRiggerConfigFile()
+    return RiggerIOCBuildUtils.initRiggerConfigFile()
 })

@@ -8,13 +8,13 @@ var colors = require("colors");
 var nodemon = require("gulp-nodemon");
 var runSeq = require("gulp-sequence");
 
-var RiggerPublishUtils = require("./utils/riggerPublishUtils.js");
-var Rigger = require("./utils/rigger.js");
+var RiggerPublishUtils = require("./utils/riggerIOCPublishUtils.js");
+var RiggerIOC = require("./utils/riggerIOC.js");
 
-gulp.task("publish", ["initApplicationConfig"], function(){
+gulp.task("publish", function(){
     RiggerPublishUtils.publish();     
 })
 
 gulp.task("initApplicationConfig", function(){
-    return Rigger.init();
+    return RiggerIOC.init();
 })

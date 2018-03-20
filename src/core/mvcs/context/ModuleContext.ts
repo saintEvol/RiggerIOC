@@ -14,12 +14,22 @@
  *		limitations under the License.
  */
 module riggerIOC{
-	export abstract class ModuleContext implements IContext{
+	export abstract class ModuleContext implements IContext, IWaitable{
 		private applicationContext:ApplicationContext;
+		private mIsDone:boolean = false;
+		private doneCallback:Function;	
+
+		/**
+		 * 模块初始化（启动）完成后的回调命令
+		 */	
+		private doneCommand:ModuleDoneCommand;
 
 		constructor(appContext:ApplicationContext){
 			this.applicationContext = appContext;
 
+			this.doneCommand = new ModuleDoneCommand();
+			this.doneCommand.setModuleContext(this);
+			
 			this.bindInjections();
 			this.bindCommands();
 			this.bindMediators();
@@ -49,6 +59,19 @@ module riggerIOC{
 		 */
 		public getCommandBinder():CommandBinder{
 			return this.applicationContext.getCommandBinder();
+		}
+
+		public isDone():boolean{
+			return this.mIsDone;
+		}
+		
+		public done(){
+			this.mIsDone = true;
+			this.doneCallback && this.doneCallback();
+		}
+
+		public setDoneCallback(f:Function):void{
+			this.doneCallback= f;
 		}
 
 		abstract bindInjections():void;
