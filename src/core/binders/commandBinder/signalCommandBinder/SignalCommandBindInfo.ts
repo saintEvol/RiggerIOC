@@ -79,9 +79,8 @@ module riggerIOC{
 
 		/**
 		 * 设置为一次性绑定
-		 * @param cmdCls 
 		 */
-		public once(cmdCls:any):SignalCommandBindInfo{
+		public once():SignalCommandBindInfo{
 			this.isOnce = true;
 			return this;
 		}
