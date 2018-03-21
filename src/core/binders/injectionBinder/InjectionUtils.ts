@@ -13,19 +13,24 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export function inject(ctr:any){
-		return function(target:any, attrName:string, descripter?:any){
+module riggerIOC {
+	export function inject(ctr: any) {
+		return function (target: any, attrName: string, descripter?: any) {
 			// console.log(`in inject, attr:${attrName}, ctr:${ctr}`);
-			if(descripter){
+			if (descripter) {
 				doInjectGetterSetter(ctr, target, attrName, descripter);
 			}
-			else{
+			else {
 				doInjectAttr(ctr, target, attrName);
 			}
 		}
 	}
 
+	/**
+	 * 注入的属性的键
+	 */
+	const injectionAttrKey = "$$";
+	
 	/**
 	 * 对getter/setter方法进行注入
 	 * @param key 
@@ -33,10 +38,18 @@ module riggerIOC{
 	 * @param attrName 
 	 * @param descripter 
 	 */
-	function doInjectGetterSetter(key:any, taget:any, attrName:string, descripter:any){
-		let info:InjectionBindInfo = InjectionBinder.instance.bind(key);
-		descripter.get = function(){
-			return info.getInstance();
+	function doInjectGetterSetter(key: any, taget: any, attrName: string, descripter: any) {
+		let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
+		let k: string = injectionAttrKey + attrName;
+		descripter.get = function () {
+			if (info) {
+				this[k] = info.getInstance();
+				info = null;
+			}
+			return this[k];
+		};
+		descripter.set = function (v) {
+			this[k] = v;
 		}
 	}
 
@@ -46,14 +59,22 @@ module riggerIOC{
 	 * @param target 
 	 * @param attrName 
 	 */
-	function doInjectAttr(key:any, target:any, attrName:string){
-		let info:InjectionBindInfo = InjectionBinder.instance.bind(key);
+	function doInjectAttr(key: any, target: any, attrName: string) {
+		let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
+		let k: string = injectionAttrKey + attrName;
 		Object.defineProperty(target, attrName, {
-        get: function () {
-            return info.getInstance();
-        },
-        enumerable: true,
-        configurable: true
-    	});
+			get: function () {
+				if (info) {
+					this[k] = info.getInstance();
+					info = null;
+				}
+				return this[k];
+			},
+			set: function (v) {
+				this[k] = v;
+			},
+			enumerable: true,
+			configurable: true
+		});
 	}
 }
