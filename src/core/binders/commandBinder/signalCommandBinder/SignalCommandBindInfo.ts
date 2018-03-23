@@ -34,6 +34,7 @@ module riggerIOC{
 
 		public dispose(){
 			this.bindSignal.off(this, this.onSignal);
+			this.bindSignal.dispose();
 			this.bindSignal = null;
 			this.commandsCls = null;
 		}

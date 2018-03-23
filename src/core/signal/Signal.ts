@@ -19,6 +19,11 @@ module riggerIOC{
 
 		}
 
+		dispose(){
+			this.listenerMgr && this.listenerMgr.dispose();
+			this.listenerMgr = null;
+		}
+
 		/**
 		 * 派发信号
 		 * @param arg 
@@ -35,7 +40,7 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		on(caller:any, method:Function, ...args:any[]){
+		on(caller:any, method:(arg:T, ...args:any[]) => any, ...args:any[]){
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, false);
 		}
@@ -46,7 +51,7 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		once(caller:any, method:Function, ...args:any[]){
+		once(caller:any, method:(arg:T, ...args:any[]) => any, ...args:any[]){
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, true);
 		}
@@ -56,7 +61,7 @@ module riggerIOC{
 		 * @param caller 
 		 * @param method 
 		 */
-		off(caller:any, method:Function){
+		off(caller:any, method:(arg:T, ...args:any[]) => any){
 			if(this.listenerMgr) this.listenerMgr.off(caller, method);
 		}
 

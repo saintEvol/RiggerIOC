@@ -108,11 +108,11 @@ module riggerIOC {
 
 			if (this._method) {
 				let ret: any;
-				if (this._args) {
-					ret = this._method.apply(this._caller, this._args.concat(args));
+				if (args) {
+					ret = this._method.apply(this._caller, args.concat(this._args));
 				}
 				else {
-					ret = this._method.apply(this._caller, args);
+					ret = this._method.apply(this._caller, this._args);
 				}
 				if (this._ifOnce) this.dispose();
 				return ret;

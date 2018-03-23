@@ -30,7 +30,7 @@ module riggerIOC {
 	 * 注入的属性的键
 	 */
 	const injectionAttrKey = "$$";
-	
+
 	/**
 	 * 对getter/setter方法进行注入
 	 * @param key 
@@ -42,11 +42,12 @@ module riggerIOC {
 		let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
 		let k: string = injectionAttrKey + attrName;
 		descripter.get = function () {
-			if (info) {
-				this[k] = info.getInstance();
-				info = null;
+			let v = this[k];
+			if (v === null || v === undefined) {
+				v = this[k] = info.getInstance();
+				// info = null;
 			}
-			return this[k];
+			return v;
 		};
 		descripter.set = function (v) {
 			this[k] = v;
@@ -64,11 +65,12 @@ module riggerIOC {
 		let k: string = injectionAttrKey + attrName;
 		Object.defineProperty(target, attrName, {
 			get: function () {
-				if (info) {
-					this[k] = info.getInstance();
-					info = null;
+				let v = this[k];
+				if (v === null || v === undefined) {
+					v = this[k] = info.getInstance();
+					// info = null;
 				}
-				return this[k];
+				return v;
 			},
 			set: function (v) {
 				this[k] = v;
