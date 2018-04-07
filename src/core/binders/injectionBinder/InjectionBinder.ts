@@ -38,7 +38,7 @@ module riggerIOC{
 		 * @param ctr 要绑定类的构造函数,推荐绑定抽象类
 		 * @return 返回对应的绑定信息 
 		 */
-		public bind(cls:any){
+		public bind(cls:any):InjectionBindInfo{
 			// console.log("bind");
 			
 			// 查找是否已经有绑定过了

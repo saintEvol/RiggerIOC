@@ -50,10 +50,10 @@ module riggerIOC {
 		 * 绑定到值，此时会自动进行单例绑定
 		 * @param value 
 		 */
-		public toValue(value:any){
+		public toValue(value:any):InjectionBindInfo{
 			this.toSingleton();
 			this.instance = value;
-
+			return this;
 		}
 
 		/**
