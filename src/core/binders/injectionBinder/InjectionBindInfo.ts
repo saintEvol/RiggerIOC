@@ -24,6 +24,13 @@ module riggerIOC {
 		 */
 		private instance: any = null;
 
+		/**
+		 * 是否注入类的实例
+		 */
+		public get hasInstance():boolean{
+			return !!this.instance;
+		}
+
 		constructor(ctr: Function) {
 			this.cls = ctr;
 		}

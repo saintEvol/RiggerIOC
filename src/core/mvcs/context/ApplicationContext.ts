@@ -20,6 +20,9 @@ module riggerIOC{
 		@inject(CommandBinder)
 		private commandBinder:CommandBinder;
 
+		@inject(MediationBinder)
+		private mediationBinder:MediationBinder;
+
 		private modules:any[];
 
 		constructor(){
@@ -29,6 +32,7 @@ module riggerIOC{
 
 			// 绑定命令绑定器，默认绑定为SignalCommandBinder
 			this.bindCommandBinder();
+			this.bindMediationBinder();
 
 			// 绑定用户的注入
 			this.bindInjections();
@@ -59,6 +63,10 @@ module riggerIOC{
 			return this.commandBinder;
 		}
 
+		public getMediationBinder():MediationBinder{
+			return this.mediationBinder;
+		}
+
 		protected async initializeModuleContexts(){
 			let m:ModuleContext;
 			for(var i:number = 0; i < this.modules.length; ++i){
@@ -82,6 +90,10 @@ module riggerIOC{
 		protected bindCommandBinder():void{
 			// 绑定 命令绑定器，并设置为单例
 			this.injectionBinder.bind(CommandBinder).to(SignalCommandBinder).toSingleton();
+		}
+
+		protected bindMediationBinder():void{
+			this.injectionBinder.bind(MediationBinder).toSingleton();
 		}
 	}
 }

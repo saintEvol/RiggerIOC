@@ -47,6 +47,10 @@ module riggerIOC{
 			return this.getCommandBinder();
 		}
 
+		public get mediationBinder():MediationBinder{
+			return this.getMediationBinder();
+		}
+
 		/**
 		 * 获取注入绑定器
 		 */
@@ -59,6 +63,10 @@ module riggerIOC{
 		 */
 		public getCommandBinder():CommandBinder{
 			return this.applicationContext.getCommandBinder();
+		}
+
+		public getMediationBinder():MediationBinder{
+			return this.applicationContext.getMediationBinder();
 		}
 
 		public isDone():boolean{

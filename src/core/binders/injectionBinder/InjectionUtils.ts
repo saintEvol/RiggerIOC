@@ -38,9 +38,11 @@ module riggerIOC {
 	 * @param attrName 
 	 * @param descripter 
 	 */
-	function doInjectGetterSetter(key: any, taget: any, attrName: string, descripter: any) {
+	function doInjectGetterSetter(key: any, target: any, attrName: string, descripter: any) {
 		let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
 		let k: string = injectionAttrKey + attrName;
+		// 注册需要注入的属性名/存取器器名
+		InjectionBinder.instance.registerInjection(target, attrName);
 		descripter.get = function () {
 			let v = this[k];
 			if (v === null || v === undefined) {
@@ -56,13 +58,15 @@ module riggerIOC {
 
 	/**
 	 * 对成员属性进行注入
-	 * @param key 
-	 * @param target 
-	 * @param attrName 
+	 * @param key 构造函数
+	 * @param target 原型对象
+	 * @param attrName 属性名
 	 */
 	function doInjectAttr(key: any, target: any, attrName: string) {
 		let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
 		let k: string = injectionAttrKey + attrName;
+		// 注册需要注入的属性名/存取器器名
+		InjectionBinder.instance.registerInjection(target, attrName);
 		Object.defineProperty(target, attrName, {
 			get: function () {
 				let v = this[k];
