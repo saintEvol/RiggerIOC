@@ -16,7 +16,10 @@
 module riggerIOC {
 	export class InjectionBindInfo {
 		public cls: any = null;
-		private bindedCls: any = null;
+		public get bindCls():any{
+			return this.mBindCls;
+		}
+		private mBindCls: any = null;
 		private isSingleton: boolean = false;
 
 		/**
@@ -37,7 +40,7 @@ module riggerIOC {
 
 		public dispose(){
 			this.cls = null;
-			this.bindedCls = null;
+			this.mBindCls = null;
 			this.instance = null;
 		}
 
@@ -49,7 +52,7 @@ module riggerIOC {
 			// 不能绑定到自身
 			if (ctr === this.cls) throw new Error("can not bind to self.");
 
-			this.bindedCls = ctr;
+			this.mBindCls = ctr;
 			return this;
 		}
 
@@ -77,8 +80,8 @@ module riggerIOC {
 		public getInstance<T>(): T {
 			if (this.instance) return this.instance;
 			let inst:T;
-			if (this.bindedCls) {
-				inst = new this.bindedCls();
+			if (this.mBindCls) {
+				inst = new this.mBindCls();
 			}else if(this.cls){
 				inst = new this.cls();
 			}

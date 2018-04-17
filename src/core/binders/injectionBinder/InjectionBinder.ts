@@ -64,7 +64,7 @@ module riggerIOC {
 		 * @param obj 
 		 */
 		public inject(obj: any): void {
-			let prototype = obj.prototype;
+			let prototype = obj["__proto__"];
 			let arr: string[] = prototype[this.registerKey];
 			if (!arr || arr.length <= 0) return;
 			let len: number = arr.length;
