@@ -16,8 +16,9 @@
 module riggerIOC {
 	export class InjectionBindInfo {
 		public cls: any = null;
-		public get bindCls():any{
-			return this.mBindCls;
+		public get realClass():any{
+			if(this.mBindCls) return this.mBindCls;
+			return this.cls;
 		}
 		private mBindCls: any = null;
 		private isSingleton: boolean = false;
@@ -79,12 +80,13 @@ module riggerIOC {
 		 */
 		public getInstance<T>(): T {
 			if (this.instance) return this.instance;
-			let inst:T;
-			if (this.mBindCls) {
-				inst = new this.mBindCls();
-			}else if(this.cls){
-				inst = new this.cls();
-			}
+			let inst:T = new (this.realClass)();
+			// let cls = this.realClass
+			// if (this.mBindCls) {
+			// 	inst = new this.mBindCls();
+			// }else if(this.cls){
+			// 	inst = new this.cls();
+			// }
 
 			if (this.isSingleton) {
 				this.instance = inst;
