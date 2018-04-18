@@ -70,8 +70,10 @@ module riggerIOC{
 		protected async initializeModuleContexts(){
 			let m:ModuleContext;
 			for(var i:number = 0; i < this.modules.length; ++i){
-				m = new this.modules[i](this);
-				this.injectionBinder.bind(this.modules[i]).toValue(m);
+				// 获取模块的绑定类
+				let info:InjectionBindInfo = this.injectionBinder.bind(this.modules[i]);
+				m = new info.realClass(this);
+				info.toValue(m);
 				await waitFor(m);
 			}
 		}
