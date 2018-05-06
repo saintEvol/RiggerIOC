@@ -13,26 +13,12 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+///<reference path = "../../coroutine/BaseWaitable.ts" />
 module riggerIOC{
-	export abstract class Command implements IWaitable{
-		private doneCallBack:Function;
-		public isDone():boolean{
-			return this.mIsDone;
-		}
-
-		private mIsDone:boolean = false;
-
-		setDoneCallback(f:Function):void{
-			this.doneCallBack = f;
-		}
+	export abstract class Command extends BaseWaitable{
 		/**
 		 * 执行命令
 		 */
 		abstract execute(arg?:any):void;
-
-		done(){
-			this.mIsDone = true;
-			this.doneCallBack && this.doneCallBack();
-		}
 	}
 }

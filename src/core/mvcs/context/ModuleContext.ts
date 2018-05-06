@@ -13,11 +13,12 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+///<reference path = "../../coroutine/BaseWaitable.ts" />
 module riggerIOC{
-	export abstract class ModuleContext implements IContext, IWaitable{
+	export abstract class ModuleContext extends BaseWaitable implements IContext{
 		private applicationContext:ApplicationContext;
-		private mIsDone:boolean = false;
-		private doneCallback:Function;	
+		// private mIsDone:boolean = false;
+		// private doneCallback:Function;	
 
 		/**
 		 * 模块初始化（启动）完成后的回调命令
@@ -25,6 +26,7 @@ module riggerIOC{
 		protected doneCommand:ModuleDoneCommand;
 
 		constructor(appContext:ApplicationContext){
+			super();
 			this.applicationContext = appContext;
 
 			this.doneCommand = new ModuleDoneCommand();
@@ -33,11 +35,34 @@ module riggerIOC{
 			this.bindInjections();
 			this.bindCommands();
 			this.bindMediators();
+
+			// 启动模块
+			this.start();
 		}
 
 		dispose(){
 			this.applicationContext = null;
 		}
+
+		/**
+		 * 绑定注入
+		 */
+		abstract bindInjections():void;
+
+		/**
+		 * 绑定命令
+		 */
+		abstract bindCommands():void;
+
+		/**
+		 * 绑定界面与Mediator
+		 */
+		abstract bindMediators():void;
+
+		/**
+		 * 模块启动时的回调
+		 */
+		protected abstract onStart():void;
 
 		public get injectionBinder():InjectionBinder{
 			return this.getInjectionBinder();
@@ -69,22 +94,8 @@ module riggerIOC{
 			return this.applicationContext.getMediationBinder();
 		}
 
-		public isDone():boolean{
-			return this.mIsDone;
+		protected start():void{
+			this.onStart();
 		}
-		
-		public done(){
-			this.mIsDone = true;
-			this.doneCallback && this.doneCallback();
-		}
-
-		public setDoneCallback(f:Function):void{
-			this.doneCallback= f;
-		}
-
-		abstract bindInjections():void;
-		abstract bindCommands():void;
-		abstract bindMediators():void;
-
 	}
 }

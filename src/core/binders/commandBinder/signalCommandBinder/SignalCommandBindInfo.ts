@@ -64,7 +64,9 @@ module riggerIOC{
 		 * @param cmdCls 
 		 */
 		public to(cmdCls:any):SignalCommandBindInfo{
+			InjectionBinder.instance.bind(cmdCls);
 			this.commandsCls.push({cls:cmdCls, inst:null});
+
 			return this;
 		}
 
@@ -74,6 +76,7 @@ module riggerIOC{
 		 */
 		public toValue(value:any){
 			// this.toSingleton();
+			// InjectionBinder.instance.bind(cmdCls);			
 			this.commandsCls.push({cls:null, inst:value});
 			return this;
 		}
@@ -109,7 +112,7 @@ module riggerIOC{
 				if(cmdInfo.inst){
 					cmd = cmdInfo.inst;
 				}else{
-					cmd = new cmdInfo.cls();
+					cmd = InjectionBinder.instance.bind(cmdInfo.cls).getInstance() as Command;
 				} 
 
 				cmd.execute(arg);

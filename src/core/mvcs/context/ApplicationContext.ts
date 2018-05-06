@@ -15,18 +15,20 @@
  */
 module riggerIOC{
 	export abstract class ApplicationContext implements IContext{
-		private injectionBinder:InjectionBinder;
+		protected get injectionBinder():InjectionBinder{
+			return InjectionBinder.instance;
+		}
 
 		@inject(CommandBinder)
-		private commandBinder:CommandBinder;
+		protected commandBinder:CommandBinder;
 
 		@inject(MediationBinder)
-		private mediationBinder:MediationBinder;
+		protected mediationBinder:MediationBinder;
 
 		private modules:any[];
 
 		constructor(){
-			this.injectionBinder = InjectionBinder.instance;
+			// this.injectionBinder = InjectionBinder.instance;
 			// 注入自身
 			// this.injectionBinder.bind(ApplicationContext).toValue(this);
 
@@ -50,7 +52,7 @@ module riggerIOC{
 			for(var i:number = 0; i < this.modules.length; ++i){
 				this.injectionBinder.unbind(this.modules[i]);
 			}
-			this.injectionBinder = null;
+			// this.injectionBinder = null;
 			this.modules = null;
 			this.commandBinder = null;
 		}
