@@ -6,6 +6,10 @@ class FightModule extends riggerIOC.ModuleContext {
 		super(appContext);
 	}
 
+	onStart(){
+		
+	}
+
 	bindInjections(): void {
 		console.log(`bind module level injections.`);
 		this.injectionBinder.bind(DummyModel).to(ChildDummyModel).toSingleton();
