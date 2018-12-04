@@ -25,6 +25,7 @@
     "merge-stream": "^1.0.1",
     "require-dir": "^1.0.0",
     "silly-datetime": "^0.1.2",
+    "through": "^2.3.8",
     "typescript": "^2.4.2"
   }
 }
