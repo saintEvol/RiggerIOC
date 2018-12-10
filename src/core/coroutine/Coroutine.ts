@@ -15,7 +15,11 @@
  */
 module riggerIOC {
 	export interface Action {
-		(): void
+		(): void;
+	}
+
+	export interface OneParamsAction{
+		(p?:any): void;
 	}
 
 	export async function startCoroutine(caller: any, method: Function, ...args: any[]) {
@@ -66,12 +70,18 @@ module riggerIOC {
 	 * @param waitable 
 	 */
 	export function waitFor(waitable: IWaitable) {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
 			if (waitable.isDone()) {
-				resolve();
+				resolve(waitable.getResult());
+				waitable.reset();
+			}
+			else if(waitable.isCanceled()){
+				reject(waitable.getReason());
+				waitable.reset();				
 			}
 			else {
 				waitable.setDoneCallback(resolve);
+				waitable.setCancelCallback(reject);
 			}
 		})
 	}
