@@ -9,5 +9,7 @@ class DieCommand extends riggerIOC.Command{
     execute(){
         console.log(`[time:${Laya.Browser.now()}]fightr die`);
         this.done();
+        
+        return this
     }
 }

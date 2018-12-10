@@ -16,7 +16,11 @@
 ///<reference path="../pool/Pool.ts" />
 module riggerIOC {
 	export class Handler {
-		public static pool: Pool;
+		public static get pool(): Pool{
+			if(!Handler.m_pool) Handler.m_pool = new Pool();
+			return Handler.m_pool;
+		}
+		private static m_pool: Pool;
 
 		protected _id: number;
 
@@ -44,7 +48,6 @@ module riggerIOC {
 			this._method = func;
 			this._args = args;
 			this._ifOnce = once;
-			if(!Handler.pool) Handler.pool = new Pool();
 		}
 
 		dispose() {

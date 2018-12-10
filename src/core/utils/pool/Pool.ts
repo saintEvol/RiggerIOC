@@ -46,7 +46,7 @@ module riggerIOC{
          * @param sign 对象类型标识字符。
          * @param item 对象。
          */
-        recover(sign: string, item: any): void{
+        recover<T>(sign: string, item: T): void{
 			let old:any[] = this.getPoolBySign(sign);
 			old.push(item);
 			

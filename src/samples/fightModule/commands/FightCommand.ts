@@ -20,5 +20,6 @@ class FightCommand extends riggerIOC.Command{
         }
 
         this.done();
+        return this;
     }
 }

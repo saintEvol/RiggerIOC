@@ -117,7 +117,7 @@ module riggerIOC{
 
 				cmd.execute(arg);
 				if(this.isInSequence){
-					await waitFor(cmd);
+					await cmd.startTask().wait();
 				}
 			}
 

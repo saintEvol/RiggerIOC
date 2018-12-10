@@ -15,6 +15,13 @@
  */
 ///<reference path = "../../coroutine/BaseWaitable.ts" />
 module riggerIOC{
+	/** 
+	 * 模块上下文
+	 * 模块上下文初始化（启动）完成后，需要通过以下语句显式（在onStart）通知：
+	 * 		this.doneCommand.execute()
+	 * 或
+	 * 		this.done()
+	*/
 	export abstract class ModuleContext extends BaseWaitable implements IContext{
 		private applicationContext:ApplicationContext;
 		// private mIsDone:boolean = false;
@@ -22,6 +29,7 @@ module riggerIOC{
 
 		/**
 		 * 模块初始化（启动）完成后的回调命令
+		 * 在上下文启动完成后，可以通过执行此命令通知框架
 		 */	
 		protected doneCommand:ModuleDoneCommand;
 
@@ -35,9 +43,6 @@ module riggerIOC{
 			this.bindInjections();
 			this.bindCommands();
 			this.bindMediators();
-
-			// 启动模块
-			this.start();
 		}
 
 		dispose(){
@@ -94,7 +99,8 @@ module riggerIOC{
 			return this.applicationContext.getMediationBinder();
 		}
 
-		protected start():void{
+		public start():void{
+			super.startTask();
 			this.onStart();
 		}
 	}

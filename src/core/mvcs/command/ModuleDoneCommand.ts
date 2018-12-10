@@ -12,6 +12,7 @@ module riggerIOC{
 
 		execute(){
 			this.moduleContext && this.moduleContext.done();
+			this.done();
 		}
 
 		private moduleContext:ModuleContext;

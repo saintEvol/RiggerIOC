@@ -76,7 +76,8 @@ module riggerIOC{
 				let info:InjectionBindInfo = this.injectionBinder.bind(this.modules[i]);
 				m = new info.realClass(this);
 				info.toValue(m);
-				await waitFor(m);
+				m.start();
+				await m.wait();
 			}
 		}
 

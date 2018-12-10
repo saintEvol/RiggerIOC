@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "outFile": "bin/js/game.js",
     "target": "es5",
     "sourceMap": true,
+    "experimentalDecorators": true,
     "lib": [
       "es2015",
       "es5",
@@ -10,6 +12,8 @@
     ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "bin"
   ]
 }
