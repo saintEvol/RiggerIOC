@@ -14,7 +14,7 @@ module riggerIOC {
 		/**
 		 * 所有需要执行的任务
 		 */
-		private mTasks: BaseWaitable<any>[] = [];
+		private mTasks: BaseWaitable[] = [];
 
 		/**
 		 * 每一个任务执行后的回调
@@ -85,7 +85,7 @@ module riggerIOC {
 		 */
 		public async execute(): Promise<any> {
 			if (!this.isRunning) {
-				let executors: BaseWaitable<any>[] = this.mTasks;
+				let executors: BaseWaitable[] = this.mTasks;
 				let singleArgs: any[] = this.mSingleHandlerArgs;
 				let singleHandlers: Handler[] = this.mSingleHandlers;
 				let cancelHandlers: Handler[] = this.mSingleCancelHandlers;
@@ -142,7 +142,7 @@ module riggerIOC {
 			}
 
 			if (this.mCancelHandler) {
-				this.mCancelHandler && this.mCancelHandler.runWith(this.mcancelHandlerArgs);
+				this.mCancelHandler && this.mCancelHandler.runWith([].concat(this.mcancelHandlerArgs, reason));
 			}
 
 			return this;
@@ -183,7 +183,7 @@ module riggerIOC {
 		 * @param cancelHandler 
 		 * @param cancelArgs 
 		 */
-		public add(waitable: BaseWaitable<any>, completeHandler: Handler = null, args: any[] = [],
+		public add(waitable: BaseWaitable, completeHandler: Handler = null, args: any[] = [],
 			cancelHandler: Handler = null, cancelArgs: any[] = []): TaskExecutor {
 			this.mTasks.push(waitable);
 

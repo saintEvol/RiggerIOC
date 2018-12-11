@@ -67,7 +67,7 @@ module riggerIOC {
 		 * 如果未设置时间，则会一直等待，直到被打断，效果同:forever().wait()
 		*/
 		wait() {
-			if (this.timerId == null && this.waitingMSeconds != null && !this.isWaitting) {
+			if (this.timerId == null && this.waitingMSeconds != null && !this.isWaitting()) {
 				this.forMSeconds(this.waitingMSeconds);
 			}
 			return super.wait()

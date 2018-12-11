@@ -2,10 +2,9 @@
 * 一个可以使用协程等待的基类
 */
 declare module riggerIOC {
-    class BaseWaitable<T = null> implements riggerIOC.IWaitable {
-        constructor(content?: T);
+    class BaseWaitable implements riggerIOC.IWaitable {
+        constructor();
         dispose(): void;
-        protected mContent: T;
         protected mIsDone: boolean;
         protected mResult: any;
         protected mDoneCallback: OneParamsAction;
@@ -28,7 +27,7 @@ declare module riggerIOC {
         /**
          * 开启任务,开启之后，进行等待状态
         */
-        protected startTask(...args: any[]): BaseWaitable<T>;
+        protected startTask(...args: any[]): BaseWaitable;
         getResult(): any;
         getReason(): any;
         /**
@@ -41,7 +40,7 @@ declare module riggerIOC {
         */
         done(result?: any): void;
         cancel(reason?: any): void;
-        reset(): BaseWaitable<T>;
+        reset(): BaseWaitable;
         setDoneCallback(fun: OneParamsAction): void;
         setCancelCallback(act: OneParamsAction): void;
     }

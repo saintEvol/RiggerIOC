@@ -73,7 +73,7 @@ declare module riggerIOC {
          * @param cancelHandler
          * @param cancelArgs
          */
-        add(waitable: BaseWaitable<any>, completeHandler?: Handler, args?: any[], cancelHandler?: Handler, cancelArgs?: any[]): TaskExecutor;
+        add(waitable: BaseWaitable, completeHandler?: Handler, args?: any[], cancelHandler?: Handler, cancelArgs?: any[]): TaskExecutor;
         /**
          * 设置完成时的回调，此回调是在所有执行队列都执行完成后才会回调
          * @param handler 回调
