@@ -38,12 +38,22 @@ module riggerIOC {
 		 * 所有任务取消完成后的回调
 		 */
 		private mCancelHandler: riggerIOC.Handler = null;
-		private mcancelHandlerArgs: any[] = [];
+		private mCancelHandlerArgs: any[] = [];
 
 		/**
 		 * 当前正在执行的任务的游标 
 		 */
 		private mCursor: number = -1;
+
+		/**
+		 * 异步执行任务时的同步锁(保证所有任务执行完成后才会调用总的回调)
+		 */
+		protected syncLock: TaskExecutorLock = null;
+
+		/**
+		 * 异步执行任务时的计时器列表，用于保证每个任务之间的间隔
+		 */
+		private timers: {} = null;
 
 		constructor() {
 		}
@@ -60,7 +70,7 @@ module riggerIOC {
 		 * 是否正在执行任务
 		 */
 		public get isRunning(): boolean {
-			return this.mCursor >= 0;
+			return this.mCursor >= 0 || this.syncLock != null;
 		}
 
 		/**
@@ -91,27 +101,40 @@ module riggerIOC {
 				let cancelHandlers: Handler[] = this.mSingleCancelHandlers;
 				let cancelArgs: any[] = this.mSingleCancelHandlerArgs;
 				this.mCursor = 0;
-				let tempCursor: number = this.mCursor;
+				// let tempCursor: number = this.mCursor;
 
-				for (; this.mCursor < executors.length; ++this.mCursor, tempCursor = this.mCursor) {
+				let canceled: boolean = false;
+				let cancelReason: any = null;
+				for (; this.mCursor < executors.length; ++this.mCursor) {
 					// executors[this.mCursor].execute();
 					try {
-						let ret = await executors[tempCursor].wait();
-						singleHandlers[tempCursor]
-							&& singleHandlers[tempCursor].runWith([].concat(singleArgs[tempCursor], ret));
+						let ret = await executors[this.mCursor].wait();
+						singleHandlers[this.mCursor]
+							&& singleHandlers[this.mCursor].runWith([].concat(singleArgs[this.mCursor], ret));
 					} catch (reason) {
-						// cancelHandlers[tempCursor]
-						// 	&& cancelHandlers[tempCursor].runWith([].concat(cancelArgs[tempCursor], reason));
-					}
+						canceled = true;
+						cancelReason = reason;
 
-					if (!this.isRunning) {
+						cancelHandlers[this.mCursor]
+							&& cancelHandlers[this.mCursor].runWith([].concat(cancelArgs[this.mCursor], reason));
+
 						break;
 					}
-
 				}
 
-				if (this.isRunning && executors.length > 0)
+				// 执行后面未执行任务的取消回调
+				if (canceled) {
+					for (var i: number = this.mCursor + 1; i < this.mSingleCancelHandlers.length; ++i) {
+						this.mSingleCancelHandlers[i]
+							&& this.mSingleCancelHandlers[i].runWith([].concat(this.mSingleCancelHandlerArgs[i], cancelReason));
+					}
+
+					this.mCancelHandler
+						&& this.mCancelHandler.runWith([].concat(this.mCancelHandlerArgs, cancelReason));
+				}
+				else {
 					this.mCompleteHandler && this.mCompleteHandler.runWith(this.mCompleteHandlerArgs)
+				}
 
 				// 游标归位
 				this.mCursor = -1;
@@ -124,25 +147,64 @@ module riggerIOC {
 
 		}
 
+		/** 
+		 * 异步执行
+		*/
+		public async executeAsync(interval: number = null): Promise<any> {
+			if (!this.isRunning) {
+				if (interval == null || interval == undefined || interval < 0) interval = 0;
+
+				this.syncLock = new TaskExecutorLock(this.mTasks.length);
+				let totalWait = this.syncLock.wait();
+				this.mCursor = 0;
+
+				for (; this.mCursor < this.mTasks.length; ++this.mCursor) {
+					this.executeSingle(this.mCursor, this.mCursor * interval);
+					// ++realTaskNum;
+				}
+
+				try {
+					await totalWait;
+					this.mCompleteHandler && this.mCompleteHandler.runWith(this.mCompleteHandlerArgs);
+				} catch (error) {
+					this.mCancelHandler && this.mCancelHandler.runWith(this.mCancelHandlerArgs);
+				}
+
+				// 清除计时器
+				this.clearTimer();
+
+				this.syncLock.dispose();
+				this.syncLock = null;
+				this.mCursor = -1;
+			}
+			else {
+				this.cancel();
+				await this.executeAsync(interval);
+			}
+		}
+
 
 		/**
 		 * 
 		 * @param ifTotalCallback 
+		 * 如果没有任务正在执行，则调用此接口没有任何效果
 		 */
 		public cancel(reason = null): TaskExecutor {
 			if (!this.isRunning) return;
+			if (this.syncLock) {
+				for (var i: number = 0; i < this.mTasks.length; ++i) {
+					this.mTasks[i].cancel(reason);
+				}
+				if(this.timers){
+					for(var k in this.timers){
+						this.timers[k].cancel(reason);
+					}
+					this.timers = null;
+				}
 
-			let tempCursor: number = this.mCursor;
-			this.mCursor = -1;
-			this.mTasks[tempCursor].cancel(reason);
-
-			for (var i: number = tempCursor; i < this.mSingleCancelHandlers.length; ++i) {
-				this.mSingleCancelHandlers[i]
-					&& this.mSingleCancelHandlers[i].runWith([].concat(this.mSingleCancelHandlerArgs[i], reason));
 			}
-
-			if (this.mCancelHandler) {
-				this.mCancelHandler && this.mCancelHandler.runWith([].concat(this.mcancelHandlerArgs, reason));
+			else {
+				this.mTasks[this.mCursor].cancel(reason);
 			}
 
 			return this;
@@ -150,17 +212,18 @@ module riggerIOC {
 
 		/** 
 		 * 析构函数，释放所有资源
+		 * 析构之前会先调用一次cancel(),打断所有正在执行的任务
 		*/
 		public dispose() {
 			this.cancel();
 
 			this.mCompleteHandler && this.mCompleteHandler.recover();
 			this.mCompleteHandler = null;
-			this.mCompleteHandlerArgs = [];			
+			this.mCompleteHandlerArgs = [];
 
 			this.mCancelHandler && this.mCancelHandler.recover();
 			this.mCancelHandler = null;
-			this.mcancelHandlerArgs = [];
+			this.mCancelHandlerArgs = [];
 
 			// 回收
 			this.mTasks.forEach(exe => exe.dispose());
@@ -168,11 +231,16 @@ module riggerIOC {
 
 			this.mSingleHandlers.forEach((handler) => handler.recover());
 			this.mSingleHandlers = [];
-			this.mSingleHandlerArgs = [];			
+			this.mSingleHandlerArgs = [];
 
 			this.mSingleCancelHandlers.forEach(Handler => Handler.recover());
 			this.mSingleCancelHandlers = [];
 			this.mSingleCancelHandlerArgs = [];
+
+			this.syncLock && this.syncLock.dispose();
+			this.syncLock = null;
+
+			this.clearTimer();
 		}
 
 		/**
@@ -215,12 +283,62 @@ module riggerIOC {
 		 * @param handler 
 		 * @param args 
 		 */
-		public setCancelHandler(handler: Handler, args: any[] = []): TaskExecutor{
+		public setCancelHandler(handler: Handler, args: any[] = []): TaskExecutor {
 			this.mCancelHandler && this.mCancelHandler.recover();
 			this.mCancelHandler = handler;
-			this.mcancelHandlerArgs = args
+			this.mCancelHandlerArgs = args
 
 			return this;
+		}
+
+		private async executeSingle(idx: number, delay: number): Promise<any> {
+			let cancel: riggerIOC.Handler = this.mSingleCancelHandlers[idx];
+			let cancelArgs = this.mSingleCancelHandlerArgs[idx];
+
+			if (delay > 0) {
+				try {
+					let timer: WaitForTime = this.addTimer(idx);
+					await timer.forMSeconds(delay).wait();
+					timer = null;
+				} catch (reason) {
+					cancel.runWith([].concat(cancelArgs, reason));
+					this.syncLock.cancel();
+					return;
+				}
+			}
+
+			if (idx < 0 || idx >= this.mTasks.length) return;
+			let exe: BaseWaitable = this.mTasks[idx];
+			let handler: riggerIOC.Handler = this.mSingleHandlers[idx];
+			let args = this.mSingleCancelHandlerArgs[idx];
+
+			try {
+				let ret = await exe.wait();
+				handler && handler.runWith([].concat(args, ret));
+				this.syncLock.done();
+			} catch (reason) {
+				cancel && cancel.runWith([].concat(cancelArgs, reason));
+				this.syncLock.cancel();
+			}
+		}
+
+		private addTimer(idx: number): WaitForTime {
+			let timer: WaitForTime = new WaitForTime();
+			if (!this.timers) this.timers = {};
+			this.timers[idx] = timer;
+			return timer;
+		}
+
+		private clearTimer():void{
+			if(!this.timers) return;
+			for(var k in this.timers){
+				// console.log("k in timer:" + k);
+				this.timers[k].dispose();
+				this.timers[k] = null;
+				delete this.timers[k];
+			}
+
+			this.timers = null;
 		}
 	}
 }

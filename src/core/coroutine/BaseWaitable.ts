@@ -84,6 +84,9 @@ module riggerIOC {
 		 * 任务完成
 		*/
 		done(result = null): void {
+			if(this.mIsDone) return;
+			if(this.mIsCanceled) return;
+			
 			this.mIsDone = true;
 			this.mResult = result;
 
@@ -99,6 +102,9 @@ module riggerIOC {
 		}
 
 		cancel(reason = null): void {
+			if(this.mIsCanceled) return;
+			if(this.mIsDone) return;
+
 			this.mIsCanceled = true;
 			this.mReason = reason;
 
@@ -118,6 +124,8 @@ module riggerIOC {
 			this.mIsDone = false;
 			this.mResult = null;
 			this.mReason = null;
+			this.mCanceledCallback = null;
+			this.mDoneCallback = null;
 
 			return this;
 		}

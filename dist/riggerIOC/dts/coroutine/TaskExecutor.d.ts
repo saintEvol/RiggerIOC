@@ -29,11 +29,19 @@ declare module riggerIOC {
          * 所有任务取消完成后的回调
          */
         private mCancelHandler;
-        private mcancelHandlerArgs;
+        private mCancelHandlerArgs;
         /**
          * 当前正在执行的任务的游标
          */
         private mCursor;
+        /**
+         * 异步执行任务时的同步锁(保证所有任务执行完成后才会调用总的回调)
+         */
+        protected syncLock: TaskExecutorLock;
+        /**
+         * 异步执行任务时的计时器列表，用于保证每个任务之间的间隔
+         */
+        private timers;
         constructor();
         /**
          * 创建一个实例
@@ -57,12 +65,18 @@ declare module riggerIOC {
          */
         execute(): Promise<any>;
         /**
+         * 异步执行
+        */
+        executeAsync(interval?: number): Promise<any>;
+        /**
          *
          * @param ifTotalCallback
+         * 如果没有任务正在执行，则调用此接口没有任何效果
          */
         cancel(reason?: any): TaskExecutor;
         /**
          * 析构函数，释放所有资源
+         * 析构之前会先调用一次cancel(),打断所有正在执行的任务
         */
         dispose(): void;
         /**
@@ -86,5 +100,8 @@ declare module riggerIOC {
          * @param args
          */
         setCancelHandler(handler: Handler, args?: any[]): TaskExecutor;
+        private executeSingle;
+        private addTimer;
+        private clearTimer;
     }
 }
