@@ -1,5 +1,5 @@
 /**
-* name
+* 可被异步等待的接口
 */
 declare module riggerIOC {
     interface IWaitable {

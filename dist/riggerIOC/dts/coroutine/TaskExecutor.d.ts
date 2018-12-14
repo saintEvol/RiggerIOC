@@ -1,5 +1,5 @@
 /**
-* 顺序执行器
+* 任务执行器
 */
 declare module riggerIOC {
     class TaskExecutor {

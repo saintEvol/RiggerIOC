@@ -22,9 +22,9 @@ module riggerIOC {
 		(p?:any): void;
 	}
 
-	export async function startCoroutine(caller: any, method: Function, ...args: any[]) {
-		await method.apply(caller, args);
-	}
+	// export async function startCoroutine(caller: any, method: Function, ...args: any[]) {
+	// 	await method.apply(caller, args);
+	// }
 
 	/**
 	 * 等下一帧，注意，这里的帧是指浏览器的帧（一般为4MS），而非游戏帧

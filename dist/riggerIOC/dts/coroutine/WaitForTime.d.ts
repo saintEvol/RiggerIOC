@@ -1,6 +1,3 @@
-/**
-* name
-*/
 declare module riggerIOC {
     class WaitForTime extends BaseWaitable {
         protected waitingMSeconds: number;

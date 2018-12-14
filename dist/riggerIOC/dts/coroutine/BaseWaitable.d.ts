@@ -1,5 +1,5 @@
 /**
-* 一个可以使用协程等待的基类
+* 一个可以使用协程等待的基础实现
 */
 declare module riggerIOC {
     class BaseWaitable implements riggerIOC.IWaitable {
