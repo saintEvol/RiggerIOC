@@ -3,7 +3,8 @@ import WebGL = Laya.WebGL;
 class GameMain {
     constructor() {
         Laya.init(600, 400, WebGL);
-        new MyAppContext();
+        let t: Laya.TimeLine
+        // new MyAppContext();
         // let sp1: Laya.Sprite = new Laya.Sprite();
         // sp1.graphics.drawCircle(30, 30, 30, "yellow");
         // Laya.stage.addChild(sp1);
@@ -11,9 +12,9 @@ class GameMain {
         // let sp2: Laya.Sprite = new Laya.Sprite();
         // sp2.graphics.drawRect(60, 60, )
         this.testSeq();
-        this.test();
+        // this.test();
         // this.testConcat();
-        this.testFrame();
+        // this.testFrame();
     }
 
     async testSeq() {
@@ -36,8 +37,8 @@ class GameMain {
         t3.forSeconds(7, false);
         seq.add(t3, comHandler, ["t3"], cancelHandler, ["t3"])
 
-        setTimeout(this.interrupt, 12005, seq);
-        await seq.execute();
+        setTimeout(this.interrupt, 2500, seq);
+        await seq.executeAsync();
         console.log("===complete===")
 
 

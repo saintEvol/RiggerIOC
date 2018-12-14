@@ -217,23 +217,23 @@ module riggerIOC {
 		public dispose() {
 			this.cancel();
 
-			this.mCompleteHandler && this.mCompleteHandler.recover();
+			// this.mCompleteHandler && this.mCompleteHandler.recover();
 			this.mCompleteHandler = null;
 			this.mCompleteHandlerArgs = [];
 
-			this.mCancelHandler && this.mCancelHandler.recover();
+			// this.mCancelHandler && this.mCancelHandler.recover();
 			this.mCancelHandler = null;
 			this.mCancelHandlerArgs = [];
 
 			// 回收
-			this.mTasks.forEach(exe => exe.dispose());
+			// this.mTasks.forEach(exe => exe.dispose());
 			this.mTasks = [];
 
-			this.mSingleHandlers.forEach((handler) => handler.recover());
+			// this.mSingleHandlers.forEach((handler) => handler.recover());
 			this.mSingleHandlers = [];
 			this.mSingleHandlerArgs = [];
 
-			this.mSingleCancelHandlers.forEach(Handler => Handler.recover());
+			// this.mSingleCancelHandlers.forEach(Handler => Handler.recover());
 			this.mSingleCancelHandlers = [];
 			this.mSingleCancelHandlerArgs = [];
 
@@ -270,7 +270,7 @@ module riggerIOC {
 		 * @param args 参数
 		 */
 		public setCompleteHandler(handler: Handler, args: any[] = []): TaskExecutor {
-			this.mCompleteHandler && this.mCompleteHandler.recover();
+			// this.mCompleteHandler && this.mCompleteHandler.recover();
 			this.mCompleteHandler = handler;
 
 			this.mCompleteHandlerArgs = args;
@@ -284,7 +284,7 @@ module riggerIOC {
 		 * @param args 
 		 */
 		public setCancelHandler(handler: Handler, args: any[] = []): TaskExecutor {
-			this.mCancelHandler && this.mCancelHandler.recover();
+			// this.mCancelHandler && this.mCancelHandler.recover();
 			this.mCancelHandler = handler;
 			this.mCancelHandlerArgs = args
 
