@@ -13,7 +13,7 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
- /**
+/**
 * 任务执行器
 */
 /// 
@@ -210,8 +210,8 @@ module riggerIOC {
 				for (var i: number = 0; i < this.mTasks.length; ++i) {
 					this.mTasks[i].cancel(reason);
 				}
-				if(this.timers){
-					for(var k in this.timers){
+				if (this.timers) {
+					for (var k in this.timers) {
 						this.timers[k].cancel(reason);
 					}
 					this.timers = null;
@@ -252,8 +252,8 @@ module riggerIOC {
 			this.mSingleCancelHandlers = [];
 			this.mSingleCancelHandlerArgs = [];
 
-			this.syncLock && this.syncLock.dispose();
-			this.syncLock = null;
+			// this.syncLock && this.syncLock.dispose();
+			// this.syncLock = null;
 
 			this.clearTimer();
 		}
@@ -311,15 +311,19 @@ module riggerIOC {
 			let cancelArgs = this.mSingleCancelHandlerArgs[idx];
 
 			if (delay > 0) {
+				let timer: WaitForTime = this.addTimer(idx);
 				try {
-					let timer: WaitForTime = this.addTimer(idx);
 					await timer.forMSeconds(delay).wait();
-					timer = null;
 				} catch (reason) {
-					cancel.runWith([].concat(cancelArgs, reason));
+					cancel && cancel.runWith([].concat(cancelArgs, reason));
 					this.syncLock.cancel();
+					timer.dispose();
+					timer = null;
+
 					return;
 				}
+				timer.dispose();
+				timer = null;
 			}
 
 			if (idx < 0 || idx >= this.mTasks.length) return;
@@ -344,9 +348,9 @@ module riggerIOC {
 			return timer;
 		}
 
-		private clearTimer():void{
-			if(!this.timers) return;
-			for(var k in this.timers){
+		private clearTimer(): void {
+			if (!this.timers) return;
+			for (var k in this.timers) {
 				// console.log("k in timer:" + k);
 				this.timers[k].dispose();
 				this.timers[k] = null;
