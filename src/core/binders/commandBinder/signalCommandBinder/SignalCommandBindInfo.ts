@@ -110,7 +110,7 @@ module riggerIOC {
 		 * 执行绑定的命令, 如果命令序列中有WaitableCommand会抛错
 		 * @param arg 
 		 */
-		private async executeCommands(arg?: any[]) {
+		private executeCommands(arg?: any[]) {
 			let ret = null;
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
 				let cmd: ICommand;
@@ -120,9 +120,9 @@ module riggerIOC {
 				} else {
 					cmd = InjectionBinder.instance.bind(cmdInfo.cls).getInstance() as ICommand;
 				}
-				if(cmd instanceof WaitableCommand){
-					throw new Error(`try to execute sync command, while it is an async command, command:${cmd}`);
-				}
+				// if(cmd instanceof WaitableCommand){
+				// 	throw new Error(`try to execute sync command, while it is an async command, command:${cmd}`);
+				// }
 
 				arg = arg == null || arg == undefined ? [] : arg;
 				ret = cmd.execute(...arg.concat(ret));
