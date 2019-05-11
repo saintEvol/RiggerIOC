@@ -40,7 +40,7 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		on(caller:any, method:(arg:T, ...args:any[]) => any, ...args:any[]){
+		on(caller:any, method:(arg:T, args:any[]) => any, args?:any[]){
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, false);
 		}
@@ -51,7 +51,7 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		once(caller:any, method:(arg:T, ...args:any[]) => any, ...args:any[]){
+		once(caller:any, method:(arg:T, args:any[]) => any, args:any[]){
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, true);
 		}
@@ -61,7 +61,7 @@ module riggerIOC{
 		 * @param caller 
 		 * @param method 
 		 */
-		off(caller:any, method:(arg:T, ...args:any[]) => any){
+		off(caller:any, method:(arg:T, args:any[]) => any){
 			if(this.listenerMgr) this.listenerMgr.off(caller, method);
 		}
 

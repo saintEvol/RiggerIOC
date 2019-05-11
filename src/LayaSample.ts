@@ -3,15 +3,15 @@ import WebGL = Laya.WebGL;
 class GameMain {
     constructor() {
         Laya.init(600, 400, WebGL);
-        let t: Laya.TimeLine
-        // new MyAppContext();
+        // let t: Laya.TimeLine
+        new MyAppContext();
         // let sp1: Laya.Sprite = new Laya.Sprite();
         // sp1.graphics.drawCircle(30, 30, 30, "yellow");
         // Laya.stage.addChild(sp1);
 
         // let sp2: Laya.Sprite = new Laya.Sprite();
         // sp2.graphics.drawRect(60, 60, )
-        this.testSeq();
+        // this.testSeq();
         // this.test();
         // this.testConcat();
         // this.testFrame();

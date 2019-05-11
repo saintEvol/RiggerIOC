@@ -41,9 +41,10 @@ declare module riggerIOC {
         inSequence(): SignalCommandBindInfo;
         private onSignal;
         /**
-         * 执行绑定的命令
+         * 执行绑定的命令, 如果命令序列中有WaitableCommand会抛错
          * @param arg
          */
         private executeCommands;
+        private executeWaitableCommands;
     }
 }

@@ -1,9 +1,12 @@
 /// <reference path="../../coroutine/BaseWaitable.d.ts" />
 declare module riggerIOC {
-    abstract class Command extends BaseWaitable {
+    interface ICommand {
         /**
-         * 执行命令
+         * ????
          */
-        abstract execute(arg?: any): void;
+        execute(...arg: any[]): any;
+    }
+    abstract class Command implements ICommand {
+        abstract execute(...arg: any[]): any;
     }
 }

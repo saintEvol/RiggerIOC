@@ -1,11 +1,12 @@
 /**
 * name 
 */
+/// <reference path = "./WaitableCommand.ts" />
 module riggerIOC{
 	/**
 	 * 模块启动完成的命令
 	 */
-	export class ModuleDoneCommand extends Command{
+	export class ModuleDoneCommand extends WaitableCommand{
 		constructor(){
 			super();
 		}

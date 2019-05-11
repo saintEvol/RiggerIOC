@@ -14,11 +14,15 @@
  *		limitations under the License.
  */
 ///<reference path = "../../coroutine/BaseWaitable.ts" />
-module riggerIOC{
-	export abstract class Command extends BaseWaitable{
+module riggerIOC {
+	export interface ICommand{
 		/**
-		 * 执行命令
+		 * ????
 		 */
-		abstract execute(arg?:any):void;
+		execute(...arg: any[]): any;
+	}
+
+	export abstract class Command implements ICommand{
+		abstract execute(...arg: any[]): any;
 	}
 }

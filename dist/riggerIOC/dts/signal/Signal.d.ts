@@ -14,20 +14,20 @@ declare module riggerIOC {
          * @param method
          * @param args
          */
-        on(caller: any, method: (arg: T, ...args: any[]) => any, ...args: any[]): void;
+        on(caller: any, method: (arg: T, args: any[]) => any, args?: any[]): void;
         /**
          * 注册一次性回调
          * @param caller
          * @param method
          * @param args
          */
-        once(caller: any, method: (arg: T, ...args: any[]) => any, ...args: any[]): void;
+        once(caller: any, method: (arg: T, args: any[]) => any, args: any[]): void;
         /**
          * 取消回调
          * @param caller
          * @param method
          */
-        off(caller: any, method: (arg: T, ...args: any[]) => any): void;
+        off(caller: any, method: (arg: T, args: any[]) => any): void;
         /**
          * 保证ListenerManager可用
          */

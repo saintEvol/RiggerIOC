@@ -1,7 +1,7 @@
 declare module riggerIOC {
     class CommandBindTuple {
         ctr: any;
-        inst: Command;
+        inst: ICommand;
         constructor(cls: any);
     }
 }

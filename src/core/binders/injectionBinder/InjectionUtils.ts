@@ -14,6 +14,10 @@
  *		limitations under the License.
  */
 module riggerIOC {
+	/**
+	 * 注入装饰器
+	 * @param ctr 
+	 */
 	export function inject(ctr: any) {
 		return function (target: any, attrName: string, descripter?: any) {
 			// console.log(`in inject, attr:${attrName}, ctr:${ctr}`);
@@ -23,6 +27,17 @@ module riggerIOC {
 			else {
 				doInjectAttr(ctr, target, attrName);
 			}
+		}
+	}
+
+	/**
+	 * 反向映射装饰器,即以字段的值为键，以字段的键为值建立一个新的字段，只推荐常量用
+	 */
+	export function retrievAble(v?: number) {
+		return function (target: any, keyStr: string)  {
+			// console.log(`key str:${keyStr}, v:${v}`);
+			v = v || target[keyStr];
+			target[v] = keyStr;
 		}
 	}
 

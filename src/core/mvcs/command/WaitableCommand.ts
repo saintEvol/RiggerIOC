@@ -13,13 +13,15 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export class CommandBindTuple{
-		ctr:any;
-		inst:ICommand;
-		constructor(cls:any){
-			this.ctr = cls;
-			this.inst = null;
-		}
+///<reference path = "../../coroutine/BaseWaitable.ts" />
+/**
+ * 这是一个可等待的命令（异步)
+ */
+module riggerIOC {
+	export abstract class WaitableCommand extends BaseWaitable implements ICommand {
+		/**
+		 * 执行命令
+		 */
+		abstract execute(...arg: any[]): void;
 	}
 }
