@@ -5,8 +5,8 @@ declare module riggerIOC {
     abstract class View {
         constructor();
         abstract onInit(): void;
-        abstract onShown(): void;
+        abstract onShow(): void;
         abstract onHide(): void;
-        abstract dispose(): void;
+        abstract onDispose(): void;
     }
 }

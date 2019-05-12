@@ -20,8 +20,8 @@
 module riggerIOC{
 	export abstract class Mediator{
 		abstract onInit():void;
-		abstract onShown():void;
+		abstract onShow():void;
 		abstract onHide():void;
-		abstract dispose():void;
+		abstract onDispose():void;
 	}
 }

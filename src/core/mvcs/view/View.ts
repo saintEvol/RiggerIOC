@@ -24,8 +24,8 @@ module riggerIOC{
 		}
 
 		public abstract onInit():void;
-		public abstract onShown():void;
+		public abstract onShow():void;
 		public abstract onHide():void;
-		public abstract dispose():void;
+		public abstract onDispose():void;
 	}
 }
