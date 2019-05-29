@@ -16,8 +16,8 @@
 ///<reference path="../pool/Pool.ts" />
 module riggerIOC {
 	export class Handler {
-		public static get pool(): Pool{
-			if(!Handler.m_pool) Handler.m_pool = new Pool();
+		public static get pool(): Pool {
+			if (!Handler.m_pool) Handler.m_pool = new Pool();
 			return Handler.m_pool;
 		}
 		private static m_pool: Pool;
@@ -54,10 +54,11 @@ module riggerIOC {
 			this._caller = null;
 			this._method = null;
 			this._args = null;
+			this._ifOnce = false;
 		}
 
 		private static riggerHandlerSign: string = "_riggerHandlerSign";
-		public static create(caller: any, fun: Function, args: any[] = null, once: boolean = true): Handler {
+		public static create(caller: any, fun: Function, args: any[] = null, once: boolean = false): Handler {
 			let ret: Handler = Handler.pool.getItem<Handler>(Handler.riggerHandlerSign);
 			if (ret) {
 				ret._caller = caller;
@@ -81,14 +82,37 @@ module riggerIOC {
 		}
 
 		/**
+		 * 替换
+		 * @param caller 
+		 * @param method 
+		 * @param args 
+		 * @param once 
+		 */
+		public replace(caller: any, method: Function, args?: any[], once: boolean = false): void {
+			this._caller = caller;
+			this._method = method;
+			this._args = args;
+			this._ifOnce = once;
+		}
+
+		/**
 		 * 将自身回收至对象池
 		 */
 		public recover() {
 			Handler.recover(this);
 		}
 
-		public once(){
+		public once() {
 			this._ifOnce = true;
+		}
+
+		/**
+		 * 是否可以覆盖
+		 * @param caller 
+		 * @param method 
+		 */
+		public canReplace(caller: any, method: any): boolean {
+			return caller == this.caller && this.method == method;
 		}
 
 		/**
@@ -97,7 +121,7 @@ module riggerIOC {
 		public run(): any {
 			if (this._method) {
 				let ret: any = this._method.apply(this._caller, this._args);
-				if (this._ifOnce) this.dispose();
+				if (this._ifOnce) this.recover();
 				return ret;
 			}
 		}
@@ -111,13 +135,13 @@ module riggerIOC {
 
 			if (this._method) {
 				let ret: any;
-				if (args) {
-					ret = this._method.apply(this._caller, args.concat(this._args));
+				if (this._args) {
+					ret = this._method.apply(this._caller, this._args.concat(args));
 				}
 				else {
-					ret = this._method.apply(this._caller, this._args);
+					ret = this._method.apply(this._caller, args);
 				}
-				if (this._ifOnce) this.dispose();
+				if (this._ifOnce) this.recover();
 				return ret;
 			}
 

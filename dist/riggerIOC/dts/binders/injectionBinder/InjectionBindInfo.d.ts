@@ -19,8 +19,10 @@ declare module riggerIOC {
          * @param ctr 目标类的构造函数
          */
         to(ctr: Function): InjectionBindInfo;
+        private isToValue;
         /**
          * 绑定到值，此时会自动进行单例绑定
+         * 可以绑定为null 或 undefined
          * @param value
          */
         toValue(value: any): InjectionBindInfo;

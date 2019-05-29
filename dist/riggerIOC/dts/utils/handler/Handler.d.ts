@@ -22,10 +22,24 @@ declare module riggerIOC {
          */
         static recover(handler: Handler): void;
         /**
+         * 替换
+         * @param caller
+         * @param method
+         * @param args
+         * @param once
+         */
+        replace(caller: any, method: Function, args?: any[], once?: boolean): void;
+        /**
          * 将自身回收至对象池
          */
         recover(): void;
         once(): void;
+        /**
+         * 是否可以覆盖
+         * @param caller
+         * @param method
+         */
+        canReplace(caller: any, method: any): boolean;
         /**
          * 无参执行
          */

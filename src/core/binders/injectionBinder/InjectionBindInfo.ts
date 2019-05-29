@@ -16,8 +16,8 @@
 module riggerIOC {
 	export class InjectionBindInfo {
 		public cls: any = null;
-		public get realClass():any{
-			if(this.mBindCls) return this.mBindCls;
+		public get realClass(): any {
+			if (this.mBindCls) return this.mBindCls;
 			return this.cls;
 		}
 		private mBindCls: any = null;
@@ -31,7 +31,7 @@ module riggerIOC {
 		/**
 		 * 是否注入类的实例
 		 */
-		public get hasInstance():boolean{
+		public get hasInstance(): boolean {
 			return !!this.instance;
 		}
 
@@ -39,7 +39,7 @@ module riggerIOC {
 			this.cls = ctr;
 		}
 
-		public dispose(){
+		public dispose() {
 			this.cls = null;
 			this.mBindCls = null;
 			this.instance = null;
@@ -57,11 +57,14 @@ module riggerIOC {
 			return this;
 		}
 
+		private isToValue: boolean = false;
 		/**
 		 * 绑定到值，此时会自动进行单例绑定
+		 * 可以绑定为null 或 undefined
 		 * @param value 
 		 */
-		public toValue(value:any):InjectionBindInfo{
+		public toValue(value: any): InjectionBindInfo {
+			this.isToValue = true;
 			this.toSingleton();
 			this.instance = value;
 			return this;
@@ -79,8 +82,9 @@ module riggerIOC {
 		 * 获取实例
 		 */
 		public getInstance<T>(): T {
+			if (this.isToValue) return this.instance;
 			if (this.instance) return this.instance;
-			let inst:T = new (this.realClass)();
+			let inst: T = new (this.realClass)();
 			// let cls = this.realClass
 			// if (this.mBindCls) {
 			// 	inst = new this.mBindCls();

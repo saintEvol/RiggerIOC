@@ -3,7 +3,7 @@ declare module riggerIOC {
         constructor();
         dispose(): void;
         private handlers;
-        on(caller: any, method: Function, args: any[], once?: boolean): Handler;
+        on(caller: any, method: Function, args?: any[], once?: boolean, coverBefore?: boolean): Handler;
         /**
          * 解除回调
          * @param caller

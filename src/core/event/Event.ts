@@ -13,14 +13,14 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export class Event{
-		private listenerManager:ListenerManager;
-		constructor(mgr:ListenerManager){
+module riggerIOC {
+	export class Event {
+		private listenerManager: ListenerManager;
+		constructor(mgr: ListenerManager) {
 			this.listenerManager = mgr;
 		}
 
-		public stop(){
+		public stop() {
 			this.listenerManager && this.listenerManager.stop();
 		}
 

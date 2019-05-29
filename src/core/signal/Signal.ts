@@ -13,13 +13,13 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
+module riggerIOC {
 	export class Signal<T>{
-		constructor(){
+		constructor() {
 
 		}
 
-		dispose(){
+		dispose() {
 			this.listenerMgr && this.listenerMgr.dispose();
 			this.listenerMgr = null;
 		}
@@ -28,11 +28,11 @@ module riggerIOC{
 		 * 派发信号
 		 * @param arg 
 		 */
-		dispatch(arg?:T){
-			if(this.listenerMgr) this.listenerMgr.execute(arg);
+		dispatch(arg?: T) {
+			if (this.listenerMgr) this.listenerMgr.execute(arg);
 		}
 
-		private listenerMgr:ListenerManager;
+		private listenerMgr: ListenerManager;
 
 		/**
 		 * 注册回调
@@ -40,9 +40,9 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		on(caller:any, method:(arg:T, args:any[]) => any, args?:any[]){
+		on(caller: any, method: (arg: T, args?: any[]) => any, args?: any[], recoverBefore: boolean = true) {
 			this.makeSureListenerManager();
-			this.listenerMgr.on(caller, method, args, false);
+			this.listenerMgr.on(caller, method, args, false, recoverBefore);
 		}
 
 		/**
@@ -51,7 +51,7 @@ module riggerIOC{
 		 * @param method 
 		 * @param args 
 		 */
-		once(caller:any, method:(arg:T, args:any[]) => any, args:any[]){
+		once(caller: any, method: (arg: T, args?: any[]) => any, args?: any[], recoverBefore: boolean = true) {
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, true);
 		}
@@ -61,15 +61,15 @@ module riggerIOC{
 		 * @param caller 
 		 * @param method 
 		 */
-		off(caller:any, method:(arg:T, args:any[]) => any){
-			if(this.listenerMgr) this.listenerMgr.off(caller, method);
+		off(caller: any, method: (arg: T, args?: any[]) => any) {
+			if (this.listenerMgr) this.listenerMgr.off(caller, method);
 		}
 
 		/**
 		 * 保证ListenerManager可用
 		 */
-		private makeSureListenerManager(){
-			if(!this.listenerMgr) this.listenerMgr = new ListenerManager();			
+		private makeSureListenerManager() {
+			if (!this.listenerMgr) this.listenerMgr = new ListenerManager();
 		}
 	}
 }

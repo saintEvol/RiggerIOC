@@ -24,12 +24,12 @@ module riggerIOC {
 		}
 
 		private mInfos: MediationBindInfo[];
-		private bindTuples:ViewMediatorTuple[];
+		private bindTuples: ViewMediatorTuple[];
 
 		/**
 		 * 
 		 * 
-		 * @param cls 
+		 * @param cls View构造函数
 		 */
 		bind(cls: any): MediationBindInfo {
 			if (!this.mInfos) this.mInfos = [];
@@ -52,7 +52,7 @@ module riggerIOC {
 			if (!info) return null;
 			if (!info.bindMediatorConstructor) return null;
 
-			// 注入VIEW
+			// 将View 注入Mediator
 			let injectionInfo: InjectionBindInfo = InjectionBinder.instance.bind(viewCls);
 			if (!injectionInfo.hasInstance) {
 				injectionInfo.toValue(view);
@@ -61,7 +61,7 @@ module riggerIOC {
 			InjectionBinder.instance.inject(inst);
 			// 取消绑定
 			injectionInfo.toValue(null);
-			this.addBindTuple(view, inst);
+			// this.addBindTuple(view, inst);
 
 			return inst;
 		}
@@ -71,17 +71,17 @@ module riggerIOC {
 		 * @param view 
 		 * @param mediator 
 		 */
-		public detach(view:View, mediator:Mediator){
-			let tuples:ViewMediatorTuple[] = this.bindTuples;
-			if(!tuples) return;
-			let len:number = tuples.length;
-			if(len <= 0) return;
-			let temp:ViewMediatorTuple[] = [];
-			for(var i:number = 0; i < len; ++i){
-				if(tuples[i].view === view){
+		public detach(view: View, mediator: Mediator) {
+			let tuples: ViewMediatorTuple[] = this.bindTuples;
+			if (!tuples) return;
+			let len: number = tuples.length;
+			if (len <= 0) return;
+			let temp: ViewMediatorTuple[] = [];
+			for (var i: number = 0; i < len; ++i) {
+				if (tuples[i].view === view) {
 					tuples[i].dispose();
 				}
-				else{
+				else {
 					temp.push(tuples[i]);
 				}
 			}
@@ -93,13 +93,13 @@ module riggerIOC {
 		 * 获取已经和视图绑定的mediator实例
 		 * @param view 
 		 */
-		public getAttachedMediatorInstance(view:View):Mediator{
-			let tuples:ViewMediatorTuple[] = this.bindTuples;
-			if(!tuples) return null;
-			let len:number = tuples.length;
-			if(len <= 0) return null;
-			for(var i:number = 0; i < len; ++i){
-				if(tuples[i].view === view){
+		public getAttachedMediatorInstance(view: View): Mediator {
+			let tuples: ViewMediatorTuple[] = this.bindTuples;
+			if (!tuples) return null;
+			let len: number = tuples.length;
+			if (len <= 0) return null;
+			for (var i: number = 0; i < len; ++i) {
+				if (tuples[i].view === view) {
 					return tuples[i].mediator;
 				}
 			}
@@ -122,8 +122,8 @@ module riggerIOC {
 			return null;
 		}
 
-		private addBindTuple(view:View, mediator:Mediator):void{
-			if(!this.bindTuples) this.bindTuples = [];
+		private addBindTuple(view: View, mediator: Mediator): void {
+			if (!this.bindTuples) this.bindTuples = [];
 			this.bindTuples.push(new ViewMediatorTuple(view, mediator));
 		}
 

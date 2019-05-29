@@ -41,7 +41,16 @@ declare module riggerIOC {
         done(result?: any): void;
         cancel(reason?: any): void;
         reset(): BaseWaitable;
+        /**
+         * 供框架的协程库调用
+         * @param fun
+         */
         setDoneCallback(fun: OneParamsAction): void;
+        /**
+         * 供框架的协程库调用
+         *
+         * @param act
+         */
         setCancelCallback(act: OneParamsAction): void;
     }
 }

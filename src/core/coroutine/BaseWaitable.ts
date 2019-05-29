@@ -107,7 +107,7 @@ module riggerIOC {
 
 			if(this.mDoneCallback){
 				this.mDoneCallback(result);
-				this.reset();
+				// this.reset();
 			}
 
 			this.mDoneCallback = null;
@@ -125,7 +125,7 @@ module riggerIOC {
 
 			if(this.mCanceledCallback){
 				this.mCanceledCallback(reason);
-				this.reset();
+				// this.reset();
 			}
 
 			this.mCanceledCallback = null;
@@ -145,10 +145,19 @@ module riggerIOC {
 			return this;
 		}
 
+		/**
+		 * 供框架的协程库调用
+		 * @param fun 
+		 */
 		setDoneCallback(fun: OneParamsAction): void {
 			this.mDoneCallback = fun;
 		}
 
+		/**
+		 * 供框架的协程库调用
+		 * 
+		 * @param act 
+		 */
 		setCancelCallback(act: OneParamsAction): void {
 			this.mCanceledCallback = act;
 		}

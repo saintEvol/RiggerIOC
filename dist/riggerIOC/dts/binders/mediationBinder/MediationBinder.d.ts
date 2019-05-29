@@ -9,7 +9,7 @@ declare module riggerIOC {
         /**
          *
          *
-         * @param cls
+         * @param cls View构造函数
          */
         bind(cls: any): MediationBindInfo;
         /**

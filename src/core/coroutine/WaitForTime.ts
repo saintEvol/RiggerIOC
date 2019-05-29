@@ -37,7 +37,7 @@ module riggerIOC {
 		 * @param mSeconds 
 		 */
 		forMSeconds(mSeconds: number, immediately: boolean = true): WaitForTime {
-			if (this.timerId !== null) return;
+			if (this.timerId !== null) return this;
 
 			if (immediately) {
 				this.waitingMSeconds = null;
@@ -51,7 +51,6 @@ module riggerIOC {
 			else {
 				this.waitingMSeconds = mSeconds
 			}
-
 
 			return this;
 		}

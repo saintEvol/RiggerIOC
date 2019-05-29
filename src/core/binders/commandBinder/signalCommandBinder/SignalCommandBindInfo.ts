@@ -97,7 +97,7 @@ module riggerIOC {
 			return this;
 		}
 
-		private onSignal(arg?: any[]) {
+		private onSignal(arg?: any) {
 			if (this.isInSequence) {
 				this.executeWaitableCommands(arg);
 			}
@@ -110,7 +110,7 @@ module riggerIOC {
 		 * 执行绑定的命令, 如果命令序列中有WaitableCommand会抛错
 		 * @param arg 
 		 */
-		private executeCommands(arg?: any[]) {
+		private executeCommands(arg: any) {
 			let ret = null;
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
 				let cmd: ICommand;
@@ -124,15 +124,15 @@ module riggerIOC {
 				// 	throw new Error(`try to execute sync command, while it is an async command, command:${cmd}`);
 				// }
 
-				arg = arg == null || arg == undefined ? [] : arg;
-				ret = cmd.execute(...arg.concat(ret));
+				// arg = arg == null || arg == undefined ? [] : arg;
+				ret = cmd.execute(arg, ret);
 			}
 
 			// 如果是一次性的，则释放
 			if (this.isOnce) this.dispose();
 		}
 
-		private async executeWaitableCommands(arg?: any[]) {
+		private async executeWaitableCommands(arg: any) {
 			let ret = null;
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
 				let cmd: ICommand;
@@ -143,13 +143,13 @@ module riggerIOC {
 					cmd = InjectionBinder.instance.bind(cmdInfo.cls).getInstance() as ICommand;
 				}
 
-				arg = arg == null || arg == undefined ? [] : arg;
+				// arg = arg == null || arg == undefined ? [] : arg;
 				if (cmd instanceof WaitableCommand) {
-					cmd.execute(...arg.concat(ret));
+					cmd.execute(arg, ret);
 					ret = await cmd.wait();
 				}
 				else {
-					ret = cmd.execute(...arg.concat(ret));
+					ret = cmd.execute(arg, ret);
 				}
 
 			}
