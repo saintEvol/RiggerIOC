@@ -91,7 +91,7 @@ module riggerIOC {
 			if (this.mIsDone) return this.mResult;
 			if (this.mIsCanceled) return this.mReason;
 
-			this.waitingTask = waitFor(this.startTask());
+			this.waitingTask = waitFor(this.startTask(...args));
 			return this.waitingTask;
 		}
 
