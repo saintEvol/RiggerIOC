@@ -14,7 +14,7 @@
  *		limitations under the License.
  */
 ///<reference path = "../../coroutine/BaseWaitable.ts" />
-module riggerIOC{
+module riggerIOC {
 	/** 
 	 * 模块上下文
 	 * 模块上下文初始化（启动）完成后，需要通过以下语句显式（在onStart）通知：
@@ -22,84 +22,96 @@ module riggerIOC{
 	 * 或
 	 * 		this.done()
 	*/
-	export abstract class ModuleContext extends BaseWaitable implements IContext{
-		private applicationContext:ApplicationContext;
+	export abstract class ModuleContext extends BaseWaitable implements IContext {
+		private applicationContext: ApplicationContext;
 		// private mIsDone:boolean = false;
 		// private doneCallback:Function;	
 
 		/**
 		 * 模块初始化（启动）完成后的回调命令
 		 * 在上下文启动完成后，可以通过执行此命令通知框架
-		 */	
-		protected doneCommand:ModuleDoneCommand;
+		 */
+		protected doneCommand: ModuleDoneCommand;
 
-		constructor(appContext:ApplicationContext){
+		constructor(appContext: ApplicationContext) {
 			super();
 			this.applicationContext = appContext;
 
 			this.doneCommand = new ModuleDoneCommand();
 			this.doneCommand.setModuleContext(this);
-			
+
 			this.bindInjections();
 			this.bindCommands();
 			this.bindMediators();
+
+			this.onInit();
 		}
 
-		dispose(){
+		/**
+		 * 各种注入完成之后调用，模块生命周期内只调用一次
+		 */
+		onInit(): void {
+
+		}
+
+		dispose() {
 			this.applicationContext = null;
+			this.doneCommand.dispose();
+			this.doneCommand = null;
+			super.dispose();
 		}
 
 		/**
 		 * 绑定注入
 		 */
-		abstract bindInjections():void;
+		abstract bindInjections(): void;
 
 		/**
 		 * 绑定命令
 		 */
-		abstract bindCommands():void;
+		abstract bindCommands(): void;
 
 		/**
 		 * 绑定界面与Mediator
 		 */
-		abstract bindMediators():void;
+		abstract bindMediators(): void;
 
 		/**
 		 * 模块启动时的回调
 		 */
-		protected abstract onStart():void;
+		protected abstract onStart(): void;
 
-		public get injectionBinder():InjectionBinder{
+		public get injectionBinder(): InjectionBinder {
 			return this.getInjectionBinder();
 		}
 
-		public get commandBinder():CommandBinder{
+		public get commandBinder(): CommandBinder {
 			return this.getCommandBinder();
 		}
 
-		public get mediationBinder():MediationBinder{
+		public get mediationBinder(): MediationBinder {
 			return this.getMediationBinder();
 		}
 
 		/**
 		 * 获取注入绑定器
 		 */
-		public getInjectionBinder():InjectionBinder{
+		public getInjectionBinder(): InjectionBinder {
 			return this.applicationContext.getInjectionBinder();
 		}
 
 		/**
 		 * 获取命令绑定器
 		 */
-		public getCommandBinder():CommandBinder{
+		public getCommandBinder(): CommandBinder {
 			return this.applicationContext.getCommandBinder();
 		}
 
-		public getMediationBinder():MediationBinder{
+		public getMediationBinder(): MediationBinder {
 			return this.applicationContext.getMediationBinder();
 		}
 
-		public start():void{
+		public start(): void {
 			super.startTask();
 			this.onStart();
 		}

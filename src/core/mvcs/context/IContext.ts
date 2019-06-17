@@ -13,13 +13,14 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export interface IContext{
-		getInjectionBinder():InjectionBinder;
-		getCommandBinder():CommandBinder;
+module riggerIOC {
+	export interface IContext {
+		getInjectionBinder(): InjectionBinder;
+		getCommandBinder(): CommandBinder;
 
-		bindInjections():void;
-		bindCommands():void;
-		dispose():void;
+		bindInjections(): void;
+		bindCommands(): void;
+		onInit(): void;
+		dispose(): void;
 	}
 }

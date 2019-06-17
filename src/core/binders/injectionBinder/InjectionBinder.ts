@@ -113,11 +113,13 @@ module riggerIOC {
 			for (var i: number = 0; i < len; ++i) {
 				info = arr[i];
 				if (info.cls !== cls) {
-					info.dispose();
 					temp.push(info);
 				}
+				else{
+					info.dispose();
+				}
 			}
-
+			info = null;
 			this.bindedArray = temp;
 		}
 	}
