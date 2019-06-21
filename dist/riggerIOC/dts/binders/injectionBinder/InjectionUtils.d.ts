@@ -1,5 +1,14 @@
 declare module riggerIOC {
     /**
+     * 类装饰器，使类可以自动释放
+     * 当用此装饰器装饰了类型时：
+     * 1. 当其所属注入器被释放时，会自动调用对象的dispose()进行释放(如果有实现)
+     * 2. 释放时，会自动将注入的属性置为null
+     */
+    function autoDispose(constructor: any): void;
+    function needAutoDispose(obj: any): boolean;
+    function doAutoDispose(obj: any): void;
+    /**
      * 注入装饰器
      * @param ctr
      */

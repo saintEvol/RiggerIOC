@@ -1,6 +1,7 @@
 /*
 * name;
 */
+@riggerIOC.autoDispose
 class LoginSuccessfulCommand extends riggerIOC.Command{
     constructor(){
         super();
@@ -13,6 +14,6 @@ class LoginSuccessfulCommand extends riggerIOC.Command{
         console.log(`[time:${Laya.Browser.now()}] now ${playerId} login successful`);
         this.succSignal.dispatch(playerId);
         
-        this.done();
+        // this.done();
     }
 }

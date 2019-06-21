@@ -19,11 +19,12 @@
 */
 module riggerIOC {
 	export class MediationBinder {
-		constructor() {
-
+		protected injectionBinder: ApplicationInjectionBinder;
+		constructor(injectionBinder: ApplicationInjectionBinder) {
+			this.injectionBinder = injectionBinder;
 		}
 
-		private mInfos: MediationBindInfo[];
+		private mInfos: { [id: string]: MediationBindInfo } = {};
 		private bindTuples: ViewMediatorTuple[];
 
 		/**
@@ -32,11 +33,12 @@ module riggerIOC {
 		 * @param cls View构造函数
 		 */
 		bind(cls: any): MediationBindInfo {
-			if (!this.mInfos) this.mInfos = [];
+			if (!this.mInfos) this.mInfos = {};
 			let info: MediationBindInfo = this.findBindInfo(cls);
 			if (!info) {
 				info = new MediationBindInfo(cls);
-				this.mInfos.push(info);
+				let id: string | number = InjectionWrapper.getId(cls);
+				this.mInfos[id] = info;
 			}
 
 			return info;
@@ -53,11 +55,11 @@ module riggerIOC {
 			if (!info.bindMediatorConstructor) return null;
 
 			// 将View 注入Mediator
-			let injectionInfo: InjectionBindInfo = InjectionBinder.instance.bind(viewCls);
+			let injectionInfo: InjectionBindInfo = this.injectionBinder.bind(viewCls);
 			if (!injectionInfo.hasInstance) {
 				injectionInfo.toValue(view);
 			}
-			let inst: Mediator = InjectionBinder.instance.bind(info.bindMediatorConstructor).getInstance<Mediator>();
+			let inst: Mediator = this.injectionBinder.bind(info.bindMediatorConstructor).getInstance<Mediator>();
 			InjectionBinder.instance.inject(inst);
 			// 取消绑定
 			injectionInfo.toValue(null);
@@ -107,19 +109,30 @@ module riggerIOC {
 			return null;
 		}
 
+		public dispose(): void {
+			for (let k in this.mInfos) {
+				this.mInfos[k].dispose();
+			}
+
+			if (this.bindTuples && this.bindTuples.length > 0) {
+				for (let i = this.bindTuples.length - 1; i >= 0; --i) {
+					this.bindTuples[i].dispose();
+				}
+			}
+
+			this.injectionBinder = null;
+			this.bindTuples = [];
+		}
+
 		/**
 		 * 查找绑定信息
 		 * @param viewCls 
 		 */
 		private findBindInfo(viewCls: any): MediationBindInfo {
-			let infos: MediationBindInfo[] = this.mInfos;
-			if (!infos || infos.length <= 0) return null;
-			let len: number = infos.length;
-			for (var i: number = 0; i < len; ++i) {
-				if (viewCls === infos[i].viewConstructor) return infos[i];
-			}
-
-			return null;
+			if (!viewCls) return null;
+			let id: string | number = InjectionWrapper.getId(viewCls);
+			if (!id) return null;
+			return this.mInfos[id];
 		}
 
 		private addBindTuple(view: View, mediator: Mediator): void {

@@ -16,5 +16,6 @@ declare module riggerIOC {
          * ！！！对于Command而言，其总是单例的，此接口只是为了提醒使用者
          */
         toSingleton(): InjectionBindInfo;
+        dispose(): void;
     }
 }

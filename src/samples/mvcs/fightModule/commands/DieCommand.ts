@@ -1,7 +1,7 @@
 /*
 * name;
 */
-class DieCommand extends riggerIOC.Command{
+class DieCommand extends riggerIOC.WaitableCommand{
     constructor(){
         super();
     }
@@ -11,5 +11,9 @@ class DieCommand extends riggerIOC.Command{
         this.done();
         
         return this
+    }
+
+    onCancel(r):void{
+        
     }
 }

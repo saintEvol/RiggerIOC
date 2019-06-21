@@ -20,11 +20,12 @@
 module riggerIOC {
 	class CommandInfo {
 		cls: any;
-		inst: any;
+		inst: Command;
 	}
 	export class SignalCommandBindInfo {
 
-		constructor(signal: Signal<any>) {
+		constructor(signal: Signal<any>, injectionBinder: InjectionBinder = null) {
+			this.appInjectionBinder = injectionBinder;
 			this.commandsCls = [];
 			this.bindSignal = signal;
 			this.isOnce = false;
@@ -32,12 +33,26 @@ module riggerIOC {
 			signal.on(this, this.onSignal);
 		}
 
+		/**
+		 * 析构时会取消信号的监听，但不会直接析构信号
+		 */
 		public dispose() {
-			this.bindSignal.off(this, this.onSignal);
-			this.bindSignal.dispose();
+			this.appInjectionBinder = null;
+			this.bindSignal && this.bindSignal.off(this, this.onSignal);
+			// this.bindSignal.dispose();
 			this.bindSignal = null;
-			this.commandsCls = null;
+			this.commandsCls = [];
+
+			//是否有正在执行的命令序列
+			if (this.executingCommand) {
+				this.executingCommand.cancel("canceled by riggIOC");
+			}
 		}
+
+		public get injectionBinder(): InjectionBinder{
+			return this.appInjectionBinder || InjectionBinder.instance;
+		}
+		protected appInjectionBinder: InjectionBinder = null;
 
 		/**
 		 * 绑定的信号
@@ -64,7 +79,7 @@ module riggerIOC {
 		 * @param cmdCls 
 		 */
 		public to(cmdCls: any): SignalCommandBindInfo {
-			InjectionBinder.instance.bind(cmdCls);
+			this.injectionBinder.bind(cmdCls);
 			this.commandsCls.push({ cls: cmdCls, inst: null });
 
 			return this;
@@ -72,9 +87,10 @@ module riggerIOC {
 
 		/**
 		 * 绑定到值，此时会自动进行单例绑定
+		 * 绑定到值的命令，在命令绑定器回收时，会自动析构命令
 		 * @param value 
 		 */
-		public toValue(value: any) {
+		public toValue(value: Command) {
 			// this.toSingleton();
 			// InjectionBinder.instance.bind(cmdCls);			
 			this.commandsCls.push({ cls: null, inst: value });
@@ -112,47 +128,81 @@ module riggerIOC {
 		 */
 		private executeCommands(arg: any) {
 			let ret = null;
+			let cmd: ICommand;
+			let cmdInfo: CommandInfo;
+			let canDispose: boolean = false;
+			let injectionInfo: InjectionBindInfo;
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
-				let cmd: ICommand;
-				let cmdInfo: CommandInfo = this.commandsCls[i];
+				cmdInfo = this.commandsCls[i];
 				if (cmdInfo.inst) {
 					cmd = cmdInfo.inst;
 				} else {
-					cmd = InjectionBinder.instance.bind(cmdInfo.cls).getInstance() as ICommand;
+					injectionInfo = this.injectionBinder.bind(cmdInfo.cls);
+					canDispose = injectionInfo.isInstanceTemporary();
+					cmd = injectionInfo.getInstance() as ICommand;
 				}
-				// if(cmd instanceof WaitableCommand){
-				// 	throw new Error(`try to execute sync command, while it is an async command, command:${cmd}`);
-				// }
 
-				// arg = arg == null || arg == undefined ? [] : arg;
 				ret = cmd.execute(arg, ret);
+				if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+					riggerIOC.doAutoDispose(cmd);
+					canDispose = false;
+				}
 			}
 
 			// 如果是一次性的，则释放
 			if (this.isOnce) this.dispose();
 		}
 
+		private executingCommand: WaitableCommand = null;
 		private async executeWaitableCommands(arg: any) {
 			let ret = null;
+			let cmd: ICommand;
+			let cmdInfo: CommandInfo;
+			let canDispose: boolean;
+			let injectionBindInfo: InjectionBindInfo;
+
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
-				let cmd: ICommand;
-				let cmdInfo: CommandInfo = this.commandsCls[i];
+				cmdInfo = this.commandsCls[i];
 				if (cmdInfo.inst) {
 					cmd = cmdInfo.inst;
 				} else {
-					cmd = InjectionBinder.instance.bind(cmdInfo.cls).getInstance() as ICommand;
+					injectionBindInfo = this.injectionBinder.bind(cmdInfo.cls);
+					canDispose = injectionBindInfo.isInstanceTemporary();
+					cmd = injectionBindInfo.getInstance() as ICommand;
 				}
 
 				// arg = arg == null || arg == undefined ? [] : arg;
 				if (cmd instanceof WaitableCommand) {
+					this.executingCommand = cmd;
 					cmd.execute(arg, ret);
-					ret = await cmd.wait();
+					let result: Result = await cmd.wait();
+
+					if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+						riggerIOC.doAutoDispose(cmd);
+					}
+
+					if (result.isOk()) {
+						ret = result.result;
+						this.executingCommand = null;
+					}
+					else {
+						// 执行失败打断,停止后续执行
+						this.executingCommand = null;
+						break;
+					}
 				}
 				else {
 					ret = cmd.execute(arg, ret);
+
+					if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+						riggerIOC.doAutoDispose(cmd);
+					}
 				}
 
 			}
+
+			cmd = cmdInfo = null;
+			this.executingCommand = null;
 
 			// 如果是一次性的，则释放
 			if (this.isOnce) this.dispose();

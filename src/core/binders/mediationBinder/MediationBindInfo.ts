@@ -13,7 +13,7 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-  
+
 /**
 * Mediation的绑定信息
 */
@@ -22,20 +22,21 @@ module riggerIOC {
 		/**
 		 * 绑定的视图类构造函数
 		 */
-		public get viewConstructor():any{
+		public get viewConstructor(): any {
 			return this.mViewConstructor;
 		}
-		private mViewConstructor:any;
+		private mViewConstructor: any;
 
 		/**
 		 * 与视图绑定的中介类
 		 */
-		public get bindMediatorConstructor():any{
+		public get bindMediatorConstructor(): any {
 			return this.mBindMediatorConstructor;
 		}
-		private mBindMediatorConstructor:any;
+		private mBindMediatorConstructor: any;
 
-		constructor(cls:any) {
+		constructor(cls: any) {
+			InjectionWrapper.wrap(cls);
 			this.mViewConstructor = cls;
 		}
 
@@ -43,9 +44,14 @@ module riggerIOC {
 		 * 将视图绑定到中介类
 		 * @param mediatorCls 
 		 */
-		to(mediatorCls:any):MediationBindInfo{
+		to(mediatorCls: any): MediationBindInfo {
 			this.mBindMediatorConstructor = mediatorCls;
 			return this;
+		}
+
+		dispose(): void {
+			this.mViewConstructor = null;
+			this.mBindMediatorConstructor = null;
 		}
 	}
 }

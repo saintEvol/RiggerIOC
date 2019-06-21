@@ -3,7 +3,8 @@
 */
 declare module riggerIOC {
     class MediationBinder {
-        constructor();
+        protected injectionBinder: ApplicationInjectionBinder;
+        constructor(injectionBinder: ApplicationInjectionBinder);
         private mInfos;
         private bindTuples;
         /**
@@ -29,6 +30,7 @@ declare module riggerIOC {
          * @param view
          */
         getAttachedMediatorInstance(view: View): Mediator;
+        dispose(): void;
         /**
          * 查找绑定信息
          * @param viewCls

@@ -22,6 +22,7 @@ module riggerIOC {
 		execute(...arg: any[]): any;
 	}
 
+	// @riggerIOC.autoDispose
 	export abstract class Command implements ICommand{
 		abstract execute(...arg: any[]): any;
 	}

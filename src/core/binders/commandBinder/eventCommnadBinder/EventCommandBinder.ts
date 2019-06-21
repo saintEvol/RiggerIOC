@@ -14,18 +14,22 @@
  *		limitations under the License.
  */
 
- /**
+/**
 * 消息与命令的绑定器
 * 一个消息可以同时绑定多个命令(即一个消息可以导致多个命令的执行)
 * 但一个命令不能同时被绑定到多个消息
 */
 module riggerIOC {
-	export class EventCommandBinder implements CommandBinder {
-		constructor() {
-
+	export class EventCommandBinder extends CommandBinder {
+		constructor(injectionBinder: InjectionBinder) {
+			super(injectionBinder);
 		}
 
 		private commandsMap: {};
+
+		dispose(): void {
+			throw new Error(`NOT IMPLEMENTED`);
+		}
 
 		/**
 		 * 绑定消息
@@ -36,6 +40,10 @@ module riggerIOC {
 			let info: EventCommandBindInfo = this.findBindInfo(msg);
 			if (!info) return this.commandsMap[msg] = new EventCommandBindInfo(msg);
 			return info;
+		}
+
+		public unbind(event:string | number): void {
+			throw new Error(`NOT IMPLEMENTED`);
 		}
 
 		/**

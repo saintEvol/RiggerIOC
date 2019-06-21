@@ -42,7 +42,7 @@ module riggerIOC {
 			return this;
 		}
 
-		public toValue(value:any):CommandBindInfo{
+		public toValue(value: any): CommandBindInfo {
 			// TODO 等待实现
 			return this;
 		}
@@ -62,6 +62,10 @@ module riggerIOC {
 		 */
 		public toSingleton(): InjectionBindInfo {
 			throw new Error("command is always Singleton.");
+
+		}
+
+		dispose(): void {
 
 		}
 	}

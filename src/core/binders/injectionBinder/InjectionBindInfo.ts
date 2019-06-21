@@ -15,6 +15,7 @@
  */
 module riggerIOC {
 	export class InjectionBindInfo {
+		public appId: string | number = null;
 		public cls: any = null;
 		public get realClass(): any {
 			if (this.mBindCls) return this.mBindCls;
@@ -22,6 +23,7 @@ module riggerIOC {
 		}
 		private mBindCls: any = null;
 		private isSingleton: boolean = false;
+		// private isAutoDispose: boolean = false;
 
 		/**
 		 * 实例，只有当为单例模式时才会给此字段赋值
@@ -42,6 +44,9 @@ module riggerIOC {
 		public dispose() {
 			this.cls = null;
 			this.mBindCls = null;
+			if (this.instance && riggerIOC.needAutoDispose(this.instance)) {
+				riggerIOC.doAutoDispose(this.instance);
+			}
 			this.instance = null;
 		}
 
@@ -85,17 +90,18 @@ module riggerIOC {
 			if (this.isToValue) return this.instance;
 			if (this.instance) return this.instance;
 			let inst: T = new (this.realClass)();
-			// let cls = this.realClass
-			// if (this.mBindCls) {
-			// 	inst = new this.mBindCls();
-			// }else if(this.cls){
-			// 	inst = new this.cls();
-			// }
 
 			if (this.isSingleton) {
 				this.instance = inst;
 			}
 			return inst;
+		}
+
+		/** 
+		 * 该绑定产生的值是否是临时的
+		*/
+		public isInstanceTemporary(): boolean {
+			return !this.isToValue && !this.isSingleton;
 		}
 	}
 }

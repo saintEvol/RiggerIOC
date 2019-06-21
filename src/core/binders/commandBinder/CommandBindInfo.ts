@@ -43,5 +43,10 @@ module riggerIOC{
 		 * 设置为顺序命令
 		 */
 		public abstract inSequence():CommandBindInfo;
+
+		/**
+		 * 析构
+		 */
+		public abstract dispose():void;
 	}
 }

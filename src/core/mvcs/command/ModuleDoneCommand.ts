@@ -6,14 +6,14 @@ module riggerIOC {
 	/**
 	 * 模块启动完成的命令
 	 */
-	export class ModuleDoneCommand extends WaitableCommand {
+	export class ModuleDoneCommand extends Command {
 		constructor() {
 			super();
 		}
 
 		execute() {
 			this.moduleContext && this.moduleContext.done();
-			this.done();
+			// this.done();
 		}
 
 		private moduleContext: ModuleContext;
@@ -23,7 +23,6 @@ module riggerIOC {
 
 		dispose(): void {
 			this.moduleContext = null;		
-			super.dispose();	
 		}
 	}
 }

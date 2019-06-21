@@ -4,6 +4,7 @@ declare module riggerIOC {
         getCommandBinder(): CommandBinder;
         bindInjections(): void;
         bindCommands(): void;
+        onInit(): void;
         dispose(): void;
     }
 }

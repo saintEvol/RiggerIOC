@@ -1,10 +1,11 @@
 /*
 * name;
 */
-class StartLoginCommand extends riggerIOC.Command {
+@riggerIOC.autoDispose
+class StartLoginCommand extends riggerIOC.WaitableCommand {
 
-    @riggerIOC.inject(LoginSuccessSignal)
-    private successLoginSignal: LoginSuccessSignal;
+    // @riggerIOC.inject(LoginSuccessSignal)
+    // private successLoginSignal: LoginSuccessSignal;
     constructor(){
         super();
     }
@@ -14,5 +15,9 @@ class StartLoginCommand extends riggerIOC.Command {
         await riggerIOC.waitForSeconds(2000);
         // this.successLoginSignal.dispatch(playerId);
         this.done();        
+    }
+
+    onCancel():void{
+        
     }
 }

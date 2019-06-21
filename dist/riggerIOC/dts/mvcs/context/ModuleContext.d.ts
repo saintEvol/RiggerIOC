@@ -15,6 +15,10 @@ declare module riggerIOC {
          */
         protected doneCommand: ModuleDoneCommand;
         constructor(appContext: ApplicationContext);
+        /**
+         * 各种注入完成之后调用，模块生命周期内只调用一次
+         */
+        onInit(): void;
         dispose(): void;
         /**
          * 绑定注入
@@ -32,7 +36,8 @@ declare module riggerIOC {
          * 模块启动时的回调
          */
         protected abstract onStart(): void;
-        readonly injectionBinder: InjectionBinder;
+        readonly injectionBinder: ApplicationInjectionBinder;
+        protected mInjectionBinder: ApplicationInjectionBinder;
         readonly commandBinder: CommandBinder;
         readonly mediationBinder: MediationBinder;
         /**

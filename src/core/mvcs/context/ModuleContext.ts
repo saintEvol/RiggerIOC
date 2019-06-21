@@ -22,10 +22,9 @@ module riggerIOC {
 	 * 或
 	 * 		this.done()
 	*/
+	@riggerIOC.autoDispose
 	export abstract class ModuleContext extends BaseWaitable implements IContext {
 		private applicationContext: ApplicationContext;
-		// private mIsDone:boolean = false;
-		// private doneCallback:Function;	
 
 		/**
 		 * 模块初始化（启动）完成后的回调命令
@@ -55,9 +54,14 @@ module riggerIOC {
 		}
 
 		dispose() {
-			this.applicationContext = null;
 			this.doneCommand.dispose();
 			this.doneCommand = null;
+			// 
+			if(this.mInjectionBinder){
+				this.mInjectionBinder.dispose();
+				this.mInjectionBinder = null;
+			}
+			this.applicationContext = null;
 			super.dispose();
 		}
 
@@ -81,9 +85,13 @@ module riggerIOC {
 		 */
 		protected abstract onStart(): void;
 
-		public get injectionBinder(): InjectionBinder {
-			return this.getInjectionBinder();
+		public get injectionBinder(): ApplicationInjectionBinder {
+			if(!this.mInjectionBinder){
+				this.mInjectionBinder = new ApplicationInjectionBinder(this.applicationContext.appId, this.applicationContext.getInjectionBinder())
+			}
+			return this.mInjectionBinder;
 		}
+		protected mInjectionBinder: ApplicationInjectionBinder = null;
 
 		public get commandBinder(): CommandBinder {
 			return this.getCommandBinder();
@@ -97,7 +105,7 @@ module riggerIOC {
 		 * 获取注入绑定器
 		 */
 		public getInjectionBinder(): InjectionBinder {
-			return this.applicationContext.getInjectionBinder();
+			return this.injectionBinder;
 		}
 
 		/**

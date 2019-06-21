@@ -1,6 +1,7 @@
 /*
 * name;
 */
+@riggerIOC.autoDispose
 class LoginModule extends riggerIOC.ModuleContext {
     @riggerIOC.inject(StartLoginSignal)
     private startLoginSignal: StartLoginSignal;
@@ -15,6 +16,10 @@ class LoginModule extends riggerIOC.ModuleContext {
     onStart(): void {
         this.startLoginSignal.dispatch(1);
         this.loginSuccessSignal.on(this, this.onLoginSuccess);
+    }
+
+    dispose():void{
+        super.dispose();
     }
 
     bindCommands(): void {

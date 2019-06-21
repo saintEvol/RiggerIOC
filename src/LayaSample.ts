@@ -4,17 +4,24 @@ class GameMain {
     constructor() {
         Laya.init(600, 400, WebGL);
         // let t: Laya.TimeLine
-        new MyAppContext();
-        // let sp1: Laya.Sprite = new Laya.Sprite();
-        // sp1.graphics.drawCircle(30, 30, 30, "yellow");
-        // Laya.stage.addChild(sp1);
+        
+        this.testApp();
+    }
 
-        // let sp2: Laya.Sprite = new Laya.Sprite();
-        // sp2.graphics.drawRect(60, 60, )
-        // this.testSeq();
-        // this.test();
-        // this.testConcat();
-        // this.testFrame();
+    private async testApp(){
+        let app:riggerIOC.ApplicationContext = new MyAppContext();
+        await riggerIOC.waitForSeconds(5000);
+        console.log(`[time:${Laya.Browser.now()}]now stop app`);
+        await app.dispose();
+        console.log(`[time:${Laya.Browser.now()}]stop app finished`)
+        await riggerIOC.waitForSeconds(2000);
+        console.log(`[time:${Laya.Browser.now()}]restart`);
+        app = new MyAppContext();
+        await riggerIOC.waitForSeconds(9040);
+        console.log(`[time:${Laya.Browser.now()}]stop app again`);
+        await app.dispose();
+        app = new MyAppContext();
+
     }
 
     async testSeq() {

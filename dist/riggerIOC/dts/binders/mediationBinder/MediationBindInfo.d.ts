@@ -19,5 +19,6 @@ declare module riggerIOC {
          * @param mediatorCls
          */
         to(mediatorCls: any): MediationBindInfo;
+        dispose(): void;
     }
 }

@@ -13,20 +13,27 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export class SignalCommandBinder implements CommandBinder{
-		constructor(){
-
-		}
+module riggerIOC {
+	export class SignalCommandBinder extends CommandBinder {
 
 		/**
 		 * 绑定一个信号
 		 * 绑定后，信号将被注入为单例模式，并且同时会立即产生一个实例
 		 * @param cls 
 		 */
-		bind(cls:any):SignalCommandBindInfo{
+		bind(cls: { new(): Signal<any> }): SignalCommandBindInfo {
 			// 将信号注入为单例,并返回对应的命令绑定信息
-			return new SignalCommandBindInfo(InjectionBinder.instance.bind(cls).toSingleton().getInstance<Signal<any>>());
+			let info: SignalCommandBindInfo = new SignalCommandBindInfo(
+				this.injectionBinder.bind(cls).toSingleton().getInstance<Signal<any>>(), this.injectionBinder);
+			this.bindInfos.push(info);
+			return info;
+		}
+
+		unbind(sigObj: Signal<any>, ifAll: boolean = false): void {
+			throw new Error("not implemented");
+			// for (let i: number = 0; i < this.bindInfos.length; ++i) {
+			// 	if()
+			// }
 		}
 	}
 }

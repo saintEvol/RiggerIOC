@@ -18,6 +18,7 @@
  */
 module riggerIOC {
 	export class InjectionBinder {
+		// private nowBindId: number = 1;
 		public static get instance(): InjectionBinder {
 			if (!InjectionBinder.mInstance) {
 				InjectionBinder.mInstance = new InjectionBinder();
@@ -31,7 +32,7 @@ module riggerIOC {
 
 		}
 
-		private bindedArray: InjectionBindInfo[];
+		private bindedMap: { [bindId: string]: InjectionBindInfo } = {};
 		/**
 		 * 绑定一个类,类不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
 		 *
@@ -40,13 +41,13 @@ module riggerIOC {
 		 */
 		public bind(cls: any): InjectionBindInfo {
 			// console.log("bind");
-
+			if (!cls) return null;
 			// 查找是否已经有绑定过了
 			let info: InjectionBindInfo = this.findBindInfo(cls);
 			if (!info) {
+				let id: number | string = InjectionWrapper.wrap(cls);
 				info = new InjectionBindInfo(cls);
-				if (!this.bindedArray) this.bindedArray = [];
-				this.bindedArray.push(info);
+				this.bindedMap[id] = info;
 			}
 
 			return info;
@@ -57,6 +58,11 @@ module riggerIOC {
 			let arr: string[] = target[this.registerKey];
 			if (!arr) arr = target[this.registerKey] = [];
 			arr.push(attName);
+		}
+
+		public getRegisteredInjection(target:any): string[]{
+			if(!target) return []
+			return target[this.registerKey] || [];
 		}
 
 		/**
@@ -77,7 +83,7 @@ module riggerIOC {
 		 * 解绑
 		 * @param cls 
 		 */
-		public unbind(cls: any) {
+		public unbind(cls: any): void {
 			// console.log("unbind");
 			this.disposeBindInfo(cls);
 		}
@@ -88,39 +94,26 @@ module riggerIOC {
 		 */
 		public findBindInfo(ctr: Function): InjectionBindInfo {
 			if (!ctr) return null;
-			if (!this.bindedArray) return null;
-
-			let info: InjectionBindInfo;
-			let arr: InjectionBindInfo[] = this.bindedArray;
-			let len: number = arr.length;
-			for (var i = 0; i < len; i++) {
-				info = arr[i];
-				if (info.cls === ctr) return info;
-			}
-
-			return null;
+			if (!this.bindedMap) return null;
+			let id: number | string = InjectionWrapper.getId(ctr);
+			if (!id) return null;
+			return this.bindedMap[id];
 		}
 
-		private disposeBindInfo(cls: any) {
-			if (!cls) return;
-			let arr: InjectionBindInfo[] = this.bindedArray;
-			if (!arr) return;
-			let len: number = arr.length;
-			if (len <= 0) return;
+		// protected getBindId(cls: any): number {
+		// 	return cls[InjectionBinder.BIND_ID_KEY];
+		// }
 
-			let temp: InjectionBindInfo[] = [];
-			let info: InjectionBindInfo;
-			for (var i: number = 0; i < len; ++i) {
-				info = arr[i];
-				if (info.cls !== cls) {
-					temp.push(info);
-				}
-				else{
-					info.dispose();
-				}
+		private disposeBindInfo(cls: any): void {
+			if (!cls) return;
+			let id: number | string = InjectionWrapper.getId(cls);
+			if (!id) return;
+			let info: InjectionBindInfo = this.bindedMap[id];
+			if (info) {
+				info.dispose();
+				delete this.bindedMap[id];
 			}
 			info = null;
-			this.bindedArray = temp;
 		}
 	}
 }

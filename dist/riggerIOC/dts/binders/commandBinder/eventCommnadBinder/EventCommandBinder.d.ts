@@ -4,14 +4,16 @@
 * 但一个命令不能同时被绑定到多个消息
 */
 declare module riggerIOC {
-    class EventCommandBinder implements CommandBinder {
-        constructor();
+    class EventCommandBinder extends CommandBinder {
+        constructor(injectionBinder: InjectionBinder);
         private commandsMap;
+        dispose(): void;
         /**
          * 绑定消息
          * @param msg
          */
         bind(msg: number | string): EventCommandBindInfo;
+        unbind(event: string | number): void;
         /**
          * 查找绑定消息
          * @param msg

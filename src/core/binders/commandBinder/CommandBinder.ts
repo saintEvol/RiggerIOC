@@ -13,8 +13,29 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
+module riggerIOC {
 	export abstract class CommandBinder {
-		abstract bind(cls:any):CommandBindInfo;	
+		constructor(injectionBinder: InjectionBinder) {
+			this.injectionBinder = injectionBinder;
+			this.bindInfos = [];
+		}
+
+		/**
+		 * 注入绑定器
+		 */
+		protected injectionBinder: InjectionBinder;
+		protected bindInfos: CommandBindInfo[];
+
+		abstract bind(cls: any): CommandBindInfo;
+		abstract unbind(cls: any): void;
+
+		dispose(): void {
+			for (let i: number = this.bindInfos.length - 1; i >= 0; --i) {
+				this.bindInfos[i].dispose();
+			}
+			this.bindInfos = [];
+			
+			this.injectionBinder = null;
+		}
 	}
 }

@@ -13,15 +13,23 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-///<reference path = "../../coroutine/BaseWaitable.ts" />
+///<reference path = "../../coroutine/SafeWaitable.ts" />
 /**
  * 这是一个可等待的命令（异步)
  */
 module riggerIOC {
-	export abstract class WaitableCommand extends BaseWaitable implements ICommand {
+	export abstract class WaitableCommand extends SafeWaitable implements ICommand {
+		cancel(reason = null): void {
+			super.cancel(reason);
+			this.onCancel(reason);
+		}
+
 		/**
 		 * 执行命令
 		 */
 		abstract execute(...arg: any[]): void;
+		onCancel(reason?: any): void{
+			
+		}
 	}
 }

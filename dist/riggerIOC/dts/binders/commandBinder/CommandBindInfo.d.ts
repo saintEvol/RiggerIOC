@@ -22,5 +22,9 @@ declare module riggerIOC {
          * 设置为顺序命令
          */
         abstract inSequence(): CommandBindInfo;
+        /**
+         * 析构
+         */
+        abstract dispose(): void;
     }
 }

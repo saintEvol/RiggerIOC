@@ -1,20 +1,24 @@
 /*
 * name;
 */
+@riggerIOC.autoDispose
 class FightModel extends riggerIOC.Model{
     constructor(){
         super();
+        // FightModel.insts.push(this);
     }
 
     dispose(){
-
+        console.log('in fight model dispose, set fighter null')
+        this.fighter = null;
     }
 
     subHp(hp:number){
         this.fighter.hp = Math.max(0, this.fighter.hp - hp);
     }
 
-    isLive():boolean{
+    isLive(test:number):boolean{
+        console.log('fight command idx:' + test);
         return this.fighter.hp > 0;
     }
 

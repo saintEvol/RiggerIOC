@@ -1,5 +1,6 @@
 declare module riggerIOC {
     class InjectionBindInfo {
+        appId: string | number;
         cls: any;
         readonly realClass: any;
         private mBindCls;
@@ -34,5 +35,9 @@ declare module riggerIOC {
          * 获取实例
          */
         getInstance<T>(): T;
+        /**
+         * 该绑定产生的值是否是临时的
+        */
+        isInstanceTemporary(): boolean;
     }
 }

@@ -3,8 +3,13 @@
  */
 declare module riggerIOC {
     class SignalCommandBindInfo {
-        constructor(signal: Signal<any>);
+        constructor(signal: Signal<any>, injectionBinder?: InjectionBinder);
+        /**
+         * 析构时会取消信号的监听，但不会直接析构信号
+         */
         dispose(): void;
+        readonly injectionBinder: InjectionBinder;
+        protected appInjectionBinder: InjectionBinder;
         /**
          * 绑定的信号
          */
@@ -28,9 +33,10 @@ declare module riggerIOC {
         to(cmdCls: any): SignalCommandBindInfo;
         /**
          * 绑定到值，此时会自动进行单例绑定
+         * 绑定到值的命令，在命令绑定器回收时，会自动析构命令
          * @param value
          */
-        toValue(value: any): this;
+        toValue(value: Command): this;
         /**
          * 设置为一次性绑定
          */
@@ -45,6 +51,7 @@ declare module riggerIOC {
          * @param arg
          */
         private executeCommands;
+        private executingCommand;
         private executeWaitableCommands;
     }
 }

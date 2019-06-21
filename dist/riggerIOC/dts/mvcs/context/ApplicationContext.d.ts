@@ -23,11 +23,12 @@ declare module riggerIOC {
         /**
          * appId
          */
-        protected appId: number | string;
-        protected readonly injectionBinder: InjectionBinder;
+        appId: number | string;
+        protected readonly injectionBinder: ApplicationInjectionBinder;
         protected commandBinder: CommandBinder;
         protected mediationBinder: MediationBinder;
         private modules;
+        private modulesInstance;
         /**
          *
          * @param ifStartImmediatly 是否立刻启动应用,默认为true
@@ -35,9 +36,14 @@ declare module riggerIOC {
          */
         constructor(appId?: string | number, ifLaunchImmediatly?: boolean);
         launch(): Promise<any>;
-        dispose(): void;
+        /**
+         * 应用模块初始化回调
+         */
+        onInit(): void;
+        dispose(): Promise<void>;
         getInjectionBinder(): InjectionBinder;
         getCommandBinder(): CommandBinder;
+        protected mInjectionBinder: ApplicationInjectionBinder;
         getMediationBinder(): MediationBinder;
         protected startTask(...args: any[]): BaseWaitable;
         protected initializeModuleContexts(): Promise<void>;

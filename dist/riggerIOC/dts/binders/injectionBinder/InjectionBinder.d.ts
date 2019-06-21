@@ -6,7 +6,7 @@ declare module riggerIOC {
         static readonly instance: InjectionBinder;
         private static mInstance;
         constructor();
-        private bindedArray;
+        private bindedMap;
         /**
          * 绑定一个类,类不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
          *
@@ -16,6 +16,7 @@ declare module riggerIOC {
         bind(cls: any): InjectionBindInfo;
         private registerKey;
         registerInjection(target: any, attName: string): void;
+        getRegisteredInjection(target: any): string[];
         /**
          * 进行注入
          * @param obj

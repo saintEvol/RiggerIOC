@@ -50,10 +50,13 @@ module riggerIOC {
 		/**
 		 * appId
 		 */
-		protected appId: number | string;
+		public appId: number | string;
 
-		protected get injectionBinder(): InjectionBinder {
-			return InjectionBinder.instance;
+		protected get injectionBinder(): ApplicationInjectionBinder {
+			if(!this.mInjectionBinder){
+				this.mInjectionBinder = new ApplicationInjectionBinder(this.appId, InjectionBinder.instance);
+			}
+			return this.mInjectionBinder;
 		}
 
 		@inject(CommandBinder)
@@ -66,9 +69,8 @@ module riggerIOC {
 		private modulesInstance: ModuleContext[];
 
 		/**
-		 * 
-		 * @param ifStartImmediatly 是否立刻启动应用,默认为true
 		 * @param appId 应用ID，如果不传入，则自动生成,必须全局唯一
+		 * @param ifStartImmediatly 是否立刻启动应用,默认为true
 		 */
 		constructor(appId?: string | number,  ifLaunchImmediatly: boolean = true) {
 			super();
@@ -85,6 +87,10 @@ module riggerIOC {
 			this.appId = appId;
 			if (!ApplicationContext.appIdsMap) ApplicationContext.appIdsMap = {};
 			ApplicationContext.appIdsMap[appId] = true;
+
+			// 绑定命令绑定器，默认绑定为SignalCommandBinder
+			this.bindCommandBinder();
+			this.bindMediationBinder();
 
 			this.onInit();
 
@@ -109,17 +115,34 @@ module riggerIOC {
 		// }
 
 		public async dispose() {
+			delete ApplicationContext.appIdsMap[this.appId];
 			for (var i: number = this.modules.length - 1; i >= 0; --i) {
 				this.injectionBinder.unbind(this.modules[i]);
-				await this.modulesInstance[i].dispose();
+				// let inst: ModuleContext = this.modulesInstance[i];
+				// 实例可能比类型少
+				// if(inst){
+				// 	await inst.dispose();
+				// }
 			}
 
 			// this.injectionBinder = null;
 			this.modules = null;
 			this.modulesInstance = null;
 
+			// this.commandBinder.dispose();
+			this.commandBinder.dispose();
 			this.commandBinder = null;
-			this.mediationBinder = null;
+
+			this.mediationBinder.dispose();
+			this.mediationBinder = null;			
+
+			// 清除绑定信息
+			if(this.mInjectionBinder){
+				this.mInjectionBinder.dispose();
+				this.mInjectionBinder = null
+			}
+
+			super.dispose();
 		}
 
 		public getInjectionBinder(): InjectionBinder {
@@ -129,6 +152,7 @@ module riggerIOC {
 		public getCommandBinder(): CommandBinder {
 			return this.commandBinder;
 		}
+		protected mInjectionBinder: ApplicationInjectionBinder = null;
 
 		public getMediationBinder(): MediationBinder {
 			return this.mediationBinder;
@@ -139,10 +163,6 @@ module riggerIOC {
 			// this.injectionBinder = InjectionBinder.instance;
 			// 注入自身
 			// this.injectionBinder.bind(ApplicationContext).toValue(this);
-
-			// 绑定命令绑定器，默认绑定为SignalCommandBinder
-			this.bindCommandBinder();
-			this.bindMediationBinder();
 
 			// 绑定用户的注入
 			this.bindInjections();
@@ -187,12 +207,12 @@ module riggerIOC {
 		abstract registerModuleContexts(): void;
 
 		protected bindCommandBinder(): void {
-			// 绑定 命令绑定器，并设置为单例
-			this.injectionBinder.bind(CommandBinder).to(SignalCommandBinder).toSingleton();
+			// 绑定 命令绑定器
+			this.injectionBinder.bind(CommandBinder).toValue(new SignalCommandBinder(this.injectionBinder));
 		}
 
 		protected bindMediationBinder(): void {
-			this.injectionBinder.bind(MediationBinder).toSingleton();
+			this.injectionBinder.bind(MediationBinder).toValue(new MediationBinder(this.injectionBinder));
 		}
 	}
 }

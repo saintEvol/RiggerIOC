@@ -13,8 +13,9 @@
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-module riggerIOC{
-	export abstract class Server{
+module riggerIOC {
+	@autoDispose
+	export abstract class Server {
 		abstract dispose();
 	}
 }

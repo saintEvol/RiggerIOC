@@ -2,24 +2,43 @@
 * name;
 */
 ///<reference path='../models/FightModel.ts'/>
-class FightCommand extends riggerIOC.Command{
-    constructor(){
+///<reference path='./BaseFightCommand.ts'/>
+class FightCommand extends BaseFightCommand {
+    static idx: number = 1;
+    constructor() {
         super();
+        console.log(`construct Fight Command`);
     }
 
     @riggerIOC.inject(FightModel)
-    private fightModel:FightModel;
+    private fightModel: FightModel;
 
-    async execute(){
+    async execute() {
         console.log("start to fight");
-        while (this.fightModel.isLive()) {
-            this.fightModel.subHp(10);
-            console.log(`[time:${Laya.Browser.now()}]be hitted and hurt:10, now  hp:${this.fightModel.hp}`);            
-            await riggerIOC.waitForSeconds(2000);
-            // await riggerIOC.waitForNextFrame();
+        let temp = FightCommand.idx++;
+        while (!this.isCanceled()) {
+            if (this.fightModel.isLive(temp)) {
+                this.fightModel.subHp(10);
+                console.log(`[time:${Laya.Browser.now()}]be hitted and hurt:10, now  hp:${this.fightModel.hp}`);
+                await riggerIOC.waitForSeconds(2000);
+                // await riggerIOC.waitForNextFrame();
+            }
+            else{
+                break;
+            }
+
         }
 
         this.done();
         return this;
+    }
+
+    onCancel(): void {
+        console.log(`cancel fight command`);
+    }
+
+    dispose():void{
+        console.log(`now dispose fight command`);
+        super.dispose();
     }
 }
