@@ -57,10 +57,10 @@ module riggerIOC {
 			this.doneCommand.dispose();
 			this.doneCommand = null;
 			// 
-			if(this.mInjectionBinder){
-				this.mInjectionBinder.dispose();
-				this.mInjectionBinder = null;
-			}
+			// if(this.mInjectionBinder){
+			// 	this.mInjectionBinder.dispose();
+			// 	this.mInjectionBinder = null;
+			// }
 			this.applicationContext = null;
 			super.dispose();
 		}
@@ -86,12 +86,13 @@ module riggerIOC {
 		protected abstract onStart(): void;
 
 		public get injectionBinder(): ApplicationInjectionBinder {
-			if(!this.mInjectionBinder){
-				this.mInjectionBinder = new ApplicationInjectionBinder(this.applicationContext.appId, this.applicationContext.getInjectionBinder(), this)
-			}
-			return this.mInjectionBinder;
+			// if(!this.mInjectionBinder){
+			// 	this.mInjectionBinder = new ApplicationInjectionBinder(this.applicationContext.appId, this.applicationContext.getInjectionBinder(), this)
+			// }
+			// return this.mInjectionBinder;
+			return this.applicationContext.getInjectionBinder() as ApplicationInjectionBinder;
 		}
-		protected mInjectionBinder: ApplicationInjectionBinder = null;
+		// protected mInjectionBinder: ApplicationInjectionBinder = null;
 
 		public get commandBinder(): CommandBinder {
 			return this.getCommandBinder();

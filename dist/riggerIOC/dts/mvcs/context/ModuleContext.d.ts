@@ -37,7 +37,6 @@ declare module riggerIOC {
          */
         protected abstract onStart(): void;
         readonly injectionBinder: ApplicationInjectionBinder;
-        protected mInjectionBinder: ApplicationInjectionBinder;
         readonly commandBinder: CommandBinder;
         readonly mediationBinder: MediationBinder;
         /**
