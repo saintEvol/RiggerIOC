@@ -31,13 +31,6 @@ module riggerIOC {
 		if (protoType["$autoDis"]) return;		
 
 		let fun = protoType.dispose;
-		// if (!fun) {
-		// 	throw new Error(`You must implement dispose() to use autoDispose`);
-		// }
-
-		// if (typeof (fun) !== "function") {
-		// 	throw new Error(`You must implement dispose() to use autoDispose`);
-		// }
 
 
 		// 获取注入的字段
@@ -63,7 +56,7 @@ module riggerIOC {
 			let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
 			if (injections && injections.length > 0) {
 				for (let i: number = 0; i < injections.length; ++i) {
-					console.log(`clear injection in obj, attr:${injections[i]}, value:${this[injections[i]]}`);
+					// console.log(`clear injection in obj, attr:${injections[i]}, value:${this[injections[i]]}`);
 					this[injections[i]] = null;
 				}
 			}

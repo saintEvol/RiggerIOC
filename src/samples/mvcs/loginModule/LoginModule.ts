@@ -37,9 +37,9 @@ class LoginModule extends riggerIOC.ModuleContext {
 
     }
 
-    private onLoginSuccess(playerId: number):void{
+    private async onLoginSuccess(playerId: number) {
         console.log(`[time:${Laya.Browser.now()}]login module init finished, and logined player:${playerId}`);
-        
+        await riggerIOC.waitForSeconds(5000);
         this.done();
     }
 }

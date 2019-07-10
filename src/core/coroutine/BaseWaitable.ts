@@ -91,7 +91,14 @@ module riggerIOC {
 			if (this.mIsDone) return this.mResult;
 			if (this.mIsCanceled) return this.mReason;
 
-			this.waitingTask = waitFor(this.startTask(...args));
+			this.waitingTask = waitFor(this); 
+			this.startTask(...args);
+			if(!this.waitingTask){
+				// 可能在开始任务时直接就完成了
+				if(this.mIsDone) return this.mResult;
+				if(this.mIsCanceled) return this.mReason;
+			}
+			
 			return this.waitingTask;
 		}
 

@@ -10,17 +10,20 @@ class GameMain {
 
     private async testApp(){
         let app:riggerIOC.ApplicationContext = new MyAppContext();
-        await riggerIOC.waitForSeconds(5000);
-        console.log(`[time:${Laya.Browser.now()}]now stop app`);
-        await app.dispose();
-        console.log(`[time:${Laya.Browser.now()}]stop app finished`)
-        await riggerIOC.waitForSeconds(2000);
-        console.log(`[time:${Laya.Browser.now()}]restart`);
-        app = new MyAppContext();
-        await riggerIOC.waitForSeconds(9040);
-        console.log(`[time:${Laya.Browser.now()}]stop app again`);
-        await app.dispose();
-        app = new MyAppContext();
+        await app.launch();
+        console.log(`launch finished`);
+
+        // await riggerIOC.waitForSeconds(5000);
+        // console.log(`[time:${Laya.Browser.now()}]now stop app`);
+        // await app.dispose();
+        // console.log(`[time:${Laya.Browser.now()}]stop app finished`)
+        // await riggerIOC.waitForSeconds(2000);
+        // console.log(`[time:${Laya.Browser.now()}]restart`);
+        // app = new MyAppContext();
+        // await riggerIOC.waitForSeconds(9040);
+        // console.log(`[time:${Laya.Browser.now()}]stop app again`);
+        // await app.dispose();
+        // app = new MyAppContext();
 
     }
 

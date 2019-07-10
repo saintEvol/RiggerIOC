@@ -5,7 +5,8 @@ declare module riggerIOC {
             [bindId: string]: InjectionBindInfo;
         };
         protected injectionBinder: InjectionBinder;
-        constructor(appId: string | number, injectionBinder: InjectionBinder | ApplicationInjectionBinder);
+        protected owner: any;
+        constructor(appId: string | number, injectionBinder: InjectionBinder | ApplicationInjectionBinder, owner?: any);
         bind(cls: any): InjectionBindInfo;
         registerInjection(target: any, attName: string): void;
         /**

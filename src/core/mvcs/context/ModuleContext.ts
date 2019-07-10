@@ -87,7 +87,7 @@ module riggerIOC {
 
 		public get injectionBinder(): ApplicationInjectionBinder {
 			if(!this.mInjectionBinder){
-				this.mInjectionBinder = new ApplicationInjectionBinder(this.applicationContext.appId, this.applicationContext.getInjectionBinder())
+				this.mInjectionBinder = new ApplicationInjectionBinder(this.applicationContext.appId, this.applicationContext.getInjectionBinder(), this)
 			}
 			return this.mInjectionBinder;
 		}

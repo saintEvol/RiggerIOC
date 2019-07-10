@@ -7,7 +7,7 @@ class FightModule extends riggerIOC.ModuleContext {
 	}
 
 	onStart(){
-		
+		this.done();
 	}
 
 	bindInjections(): void {
@@ -27,5 +27,6 @@ class FightModule extends riggerIOC.ModuleContext {
 	bindMediators(): void {
 		console.log(`bind module level mediators.`);
 	}
+	
 
 }

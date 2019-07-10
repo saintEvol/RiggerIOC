@@ -1,12 +1,29 @@
 declare module riggerIOC {
+    class InjectionStatistics {
+        constructor(id: string | number, owner?: any, fromConstructor?: any, toConstructor?: any);
+        dispose(): void;
+        id: string | number;
+        owner: any;
+        fromConstructor: any;
+        toConstructor: any;
+    }
     /**
      * 应用上下文，表示一个应用
      * 可以等待应用启动完成
      */
     abstract class ApplicationContext extends BaseWaitable implements IContext {
+        /**
+         * 是否开启debug，开启debug后会开启很多调试信息
+         */
+        static debug: boolean;
+        private static mDebug;
+        injectionStatistics: {
+            [id: string]: InjectionStatistics[];
+        };
         protected static appIdsMap: {
             [appId: string]: any;
         };
+        static getApplication(appId: string | number): ApplicationContext;
         /**
          * 当前自增的appId
          */
@@ -30,9 +47,8 @@ declare module riggerIOC {
         private modules;
         private modulesInstance;
         /**
-         *
-         * @param ifStartImmediatly 是否立刻启动应用,默认为true
          * @param appId 应用ID，如果不传入，则自动生成,必须全局唯一
+         * @param ifStartImmediatly 是否立刻启动应用,默认为true
          */
         constructor(appId?: string | number, ifLaunchImmediatly?: boolean);
         launch(): Promise<any>;

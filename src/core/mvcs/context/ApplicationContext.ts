@@ -14,12 +14,47 @@
  *		limitations under the License.
  */
 module riggerIOC {
+	export class InjectionStatistics {
+		constructor(id: string | number, owner?: any, fromConstructor?: any, toConstructor?: any) {
+			this.id = id;
+			this.owner = owner;
+			this.fromConstructor = fromConstructor;
+			this.toConstructor = toConstructor;
+		}
+
+		dispose() {
+			this.owner = this.fromConstructor = this.toConstructor = null;
+		}
+
+		id: string | number;
+		owner: any;
+		fromConstructor: any;
+		toConstructor: any;
+	}
+
 	/**
 	 * 应用上下文，表示一个应用
 	 * 可以等待应用启动完成
 	 */
 	export abstract class ApplicationContext extends BaseWaitable implements IContext {
+		/**
+		 * 是否开启debug，开启debug后会开启很多调试信息
+		 */
+		public static get debug(): boolean {
+			return ApplicationContext.mDebug;
+		}
+		public static set debug(ifEnable: boolean) {
+			ApplicationContext.mDebug = ifEnable;
+		}
+		private static mDebug: boolean = false;
+
+		public injectionStatistics: { [id: string]: InjectionStatistics[] }
 		protected static appIdsMap: { [appId: string]: any };
+
+		public static getApplication(appId: string | number): ApplicationContext {
+			return ApplicationContext.appIdsMap[appId];
+		}
+
 		/**
 		 * 当前自增的appId
 		 */
@@ -53,8 +88,8 @@ module riggerIOC {
 		public appId: number | string;
 
 		protected get injectionBinder(): ApplicationInjectionBinder {
-			if(!this.mInjectionBinder){
-				this.mInjectionBinder = new ApplicationInjectionBinder(this.appId, InjectionBinder.instance);
+			if (!this.mInjectionBinder) {
+				this.mInjectionBinder = new ApplicationInjectionBinder(this.appId, InjectionBinder.instance, this);
 			}
 			return this.mInjectionBinder;
 		}
@@ -72,8 +107,9 @@ module riggerIOC {
 		 * @param appId 应用ID，如果不传入，则自动生成,必须全局唯一
 		 * @param ifStartImmediatly 是否立刻启动应用,默认为true
 		 */
-		constructor(appId?: string | number,  ifLaunchImmediatly: boolean = true) {
+		constructor(appId?: string | number, ifLaunchImmediatly: boolean = true) {
 			super();
+			this.injectionStatistics = {};
 
 			// 分配appId
 			if (appId == null || appId == undefined) {
@@ -86,7 +122,7 @@ module riggerIOC {
 			}
 			this.appId = appId;
 			if (!ApplicationContext.appIdsMap) ApplicationContext.appIdsMap = {};
-			ApplicationContext.appIdsMap[appId] = true;
+			ApplicationContext.appIdsMap[appId] = this;
 
 			// 绑定命令绑定器，默认绑定为SignalCommandBinder
 			this.bindCommandBinder();
@@ -115,6 +151,8 @@ module riggerIOC {
 		// }
 
 		public async dispose() {
+			this.injectionStatistics = null;
+
 			delete ApplicationContext.appIdsMap[this.appId];
 			for (var i: number = this.modules.length - 1; i >= 0; --i) {
 				this.injectionBinder.unbind(this.modules[i]);
@@ -134,10 +172,10 @@ module riggerIOC {
 			this.commandBinder = null;
 
 			this.mediationBinder.dispose();
-			this.mediationBinder = null;			
+			this.mediationBinder = null;
 
 			// 清除绑定信息
-			if(this.mInjectionBinder){
+			if (this.mInjectionBinder) {
 				this.mInjectionBinder.dispose();
 				this.mInjectionBinder = null
 			}

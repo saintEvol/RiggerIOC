@@ -3,9 +3,11 @@ module riggerIOC {
 		public appId: string | number;
 		protected infos: { [bindId: string]: InjectionBindInfo } = {};
 		protected injectionBinder: InjectionBinder;
-		constructor(appId: string | number, injectionBinder: InjectionBinder | ApplicationInjectionBinder) {
+		protected owner: any;
+		constructor(appId: string | number, injectionBinder: InjectionBinder | ApplicationInjectionBinder, owner?: any) {
 			super();
 			this.appId = appId;
+			this.owner = owner;
 			if (injectionBinder instanceof ApplicationInjectionBinder) {
 				this.injectionBinder = injectionBinder.injectionBinder;
 			}
@@ -18,7 +20,19 @@ module riggerIOC {
 			let info: InjectionBindInfo = this.injectionBinder.bind(cls);
 			info.appId = this.appId;
 			if (!this.infos) this.infos = {};
-			this.infos[InjectionWrapper.getId(cls)] = info;
+			let bindId: string | number = InjectionWrapper.getId(cls);
+			this.infos[bindId] = info;
+
+			// 如果是debug状态，则进行统计
+			if (ApplicationContext.debug) {
+				let app: ApplicationContext = ApplicationContext.getApplication(this.appId);
+				let old = app.injectionStatistics[bindId] || [];
+				// 移除owner一样的
+				let owner = this.owner;
+				old = old.filter((v, idx, arr) => v.owner !== owner);
+				old.push(new InjectionStatistics(bindId, owner, cls));
+				app.injectionStatistics[bindId] = old;
+			}
 
 			return info;
 		}
@@ -53,12 +67,13 @@ module riggerIOC {
 		}
 
 		dispose(): void {
-			for(let k in this.infos){
+			for (let k in this.infos) {
 				this.unbind(this.infos[k].cls);
 			}
 
 			this.infos = {};
 			this.injectionBinder = null;
+			this.owner = null;
 		}
 	}
 }
