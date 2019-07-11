@@ -2,11 +2,11 @@ module riggerIOC {
     /**
      * 表示结果
      */
-    export class Result<T = any, M = any>{
-        result: T;
-        error: M;
+    export class Result<ResultType = any, ErrorType = any>{
+        result: ResultType;
+        error: ErrorType;
 
-        constructor(result: T = null, error: M = null) {
+        constructor(result: ResultType = null, error: ErrorType = null) {
             this.result = result;
             this.error = error;
         }
