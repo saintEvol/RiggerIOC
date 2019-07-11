@@ -2,10 +2,10 @@ declare module riggerIOC {
     /**
      * 表示结果
      */
-    class Result<T = any, M = any> {
-        result: T;
-        error: M;
-        constructor(result?: T, error?: M);
+    class Result<ResultType = any, ErrorType = any> {
+        result: ResultType;
+        error: ErrorType;
+        constructor(result?: ResultType, error?: ErrorType);
         isOk(): boolean;
         isFailed(): boolean;
     }
