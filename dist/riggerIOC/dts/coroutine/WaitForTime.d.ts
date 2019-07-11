@@ -1,5 +1,5 @@
 declare module riggerIOC {
-    class WaitForTime extends BaseWaitable {
+    class WaitForTime extends SafeWaitable {
         protected waitingMSeconds: number;
         constructor();
         /**
@@ -27,7 +27,7 @@ declare module riggerIOC {
          * 开始等待，等待之前应该先设置好时间，
          * 如果未设置时间，则会一直等待，直到被打断，效果同:forever().wait()
         */
-        wait(): Promise<any>;
+        wait(): Promise<Result<any, any>>;
         /**
          * 取消等待
          * @param reason

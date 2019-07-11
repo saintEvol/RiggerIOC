@@ -11,7 +11,7 @@ declare module riggerIOC {
     function waitForNextFrame(): Promise<{}>;
     function waitForSeconds(ms: number, conditinHandler?: Handler | Action, args?: any[]): Promise<any>;
     /**
-     * 等待命令执行完成
+     * 等待执行完成
      * @param waitable
      */
     function waitFor(waitable: IWaitable): Promise<{}>;

@@ -4,6 +4,9 @@
 declare module riggerIOC {
     class BaseWaitable implements riggerIOC.IWaitable {
         constructor();
+        /**
+         * 析构，析构时会先执行 cancel以退出执行
+         */
         dispose(): void;
         protected mIsDone: boolean;
         protected mResult: any;
@@ -39,7 +42,14 @@ declare module riggerIOC {
          * 任务完成
         */
         done(result?: any): void;
+        /**
+         * 取消执行
+         * @param reason
+         */
         cancel(reason?: any): void;
+        /**
+         * 重置，使得可以再次使用
+         */
         reset(): BaseWaitable;
         /**
          * 供框架的协程库调用
