@@ -9,6 +9,7 @@ declare module riggerIOC {
          * 实例，只有当为单例模式时才会给此字段赋值
          */
         private instance;
+        private mInstance;
         /**
          * 是否注入类的实例
          */
@@ -35,9 +36,5 @@ declare module riggerIOC {
          * 获取实例
          */
         getInstance<T>(): T;
-        /**
-         * 该绑定产生的值是否是临时的
-        */
-        isInstanceTemporary(): boolean;
     }
 }

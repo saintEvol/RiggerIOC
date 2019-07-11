@@ -6,6 +6,10 @@ declare module riggerIOC {
      * 2. 释放时，会自动将注入的属性置为null
      */
     function autoDispose(constructor: any): void;
+    /**
+     * 是否满足自动释放的条件（引用计数,是否设置了自动释放)
+     * @param obj
+     */
     function needAutoDispose(obj: any): boolean;
     function doAutoDispose(obj: any): void;
     /**
@@ -17,4 +21,5 @@ declare module riggerIOC {
      * 反向映射装饰器,即以字段的值为键，以字段的键为值建立一个新的字段，只推荐常量用
      */
     function retrievAble(v?: number): (target: any, keyStr: string) => void;
+    function addRefCount(obj: any, acc?: number): void;
 }

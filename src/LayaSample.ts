@@ -4,9 +4,9 @@ class GameMain {
     constructor() {
         Laya.init(600, 400, WebGL);
         // let t: Laya.TimeLine
-        this.testSeq();
+        // this.testSeq();
         // this.test()
-        // this.testApp();
+        this.testApp();
     }
 
     private async testApp() {
@@ -45,6 +45,7 @@ class GameMain {
         seq.add(t2, comHandler, ["t2"], cancelHandler, ["t2"])
 
         let t3: riggerIOC.WaitForTime = new riggerIOC.WaitForTime();
+        t3.reset();
         t3.forSeconds(7, false);
         seq.add(t3, comHandler, ["t3"], cancelHandler, ["t3"])
 

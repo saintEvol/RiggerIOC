@@ -28,7 +28,7 @@ module riggerIOC {
 			throw new Error("has no prototype");
 		}
 
-		if (protoType["$autoDis"]) return;		
+		if (protoType["$autoDis"]) return;
 
 		let fun = protoType.dispose;
 
@@ -41,12 +41,16 @@ module riggerIOC {
 
 	}
 
+	/**
+	 * 是否满足自动释放的条件（引用计数,是否设置了自动释放)
+	 * @param obj 
+	 */
 	export function needAutoDispose(obj: any): boolean {
 		if (!obj) return false;
-		return obj["$autoDis"];
+		return (!obj[REF_COUNT_KEY] || obj[REF_COUNT_KEY] <= 0) && obj["$autoDis"]
 	}
 
-	export function doAutoDispose(obj:any) {
+	export function doAutoDispose(obj: any) {
 		obj.dispose();
 	}
 
@@ -90,6 +94,25 @@ module riggerIOC {
 		}
 	}
 
+	const REF_COUNT_KEY: string = "$ref_num";
+	export function addRefCount(obj: any, acc: number = 1) {
+		if (!obj[REF_COUNT_KEY]) {
+			obj[REF_COUNT_KEY] = 1;
+		}
+		else {
+			obj[REF_COUNT_KEY] += acc;
+		}
+
+		// 如果引用计数<=0,则检查是否要析构
+		if (obj[REF_COUNT_KEY] <= 0) {
+			delete obj[REF_COUNT_KEY];
+			// 就否需要自动析构
+			if (needAutoDispose(obj)) {
+				doAutoDispose(obj);
+			}
+		}
+	}
+
 	/**
 	 * 注入的属性的键
 	 */
@@ -110,12 +133,23 @@ module riggerIOC {
 			let v = this[k];
 			if (v === null || v === undefined) {
 				let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
-				v = this[k] = info.getInstance();
+				// 使用setter赋值，可以统一维护引用计数器
+				v = this[attrName] = info.getInstance();
 				info = null;
 			}
 			return v;
 		};
 		descripter.set = function (v) {
+			// 先将原来的值的引用计数-1
+			let oldV = this[k];
+			if (oldV) {
+				addRefCount(oldV, -1);
+			}
+
+			// 再将新值引用计数+1
+			if (v) {
+				addRefCount(v)
+			}
 			this[k] = v;
 		}
 	}
@@ -135,12 +169,23 @@ module riggerIOC {
 				let v = this[k];
 				if (v === null || v === undefined) {
 					let info: InjectionBindInfo = InjectionBinder.instance.bind(key);
-					v = this[k] = info.getInstance();
+					// 使用setter赋值，可以统一维护引用计数器					
+					v = this[attrName] = info.getInstance();
 					info = null;
 				}
 				return v;
 			},
 			set: function (v) {
+				// 先将原来的值的引用计数-1
+				let oldV = this[k];
+				if (oldV) {
+					addRefCount(oldV, -1);
+				}
+
+				// 再将新值引用计数+1
+				if (v) {
+					addRefCount(v)
+				}
 				this[k] = v;
 			},
 			enumerable: true,

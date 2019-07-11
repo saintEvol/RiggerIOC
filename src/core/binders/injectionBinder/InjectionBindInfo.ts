@@ -28,7 +28,23 @@ module riggerIOC {
 		/**
 		 * 实例，只有当为单例模式时才会给此字段赋值
 		 */
-		private instance: any = null;
+		private get instance(): any {
+			return this.mInstance;
+		}
+		private set instance(v: any) {
+			// 先将原来的值的引用计数-1
+			let oldV = this.mInstance;
+			if (oldV) {
+				addRefCount(oldV, -1);
+			}
+
+			// 再将新值引用计数+1
+			if (v) {
+				addRefCount(v)
+			}
+			this.mInstance = v;
+		}
+		private mInstance: any = null;
 
 		/**
 		 * 是否注入类的实例
@@ -44,9 +60,9 @@ module riggerIOC {
 		public dispose() {
 			this.cls = null;
 			this.mBindCls = null;
-			if (this.instance && riggerIOC.needAutoDispose(this.instance)) {
-				riggerIOC.doAutoDispose(this.instance);
-			}
+			// if (riggerIOC.needAutoDispose(this.instance)) {
+			// 	riggerIOC.doAutoDispose(this.instance);
+			// }
 			this.instance = null;
 		}
 
@@ -71,6 +87,9 @@ module riggerIOC {
 		public toValue(value: any): InjectionBindInfo {
 			this.isToValue = true;
 			this.toSingleton();
+			if (value !== null && value !== undefined) {
+				riggerIOC.addRefCount(value);
+			}
 			this.instance = value;
 			return this;
 		}
@@ -100,8 +119,8 @@ module riggerIOC {
 		/** 
 		 * 该绑定产生的值是否是临时的
 		*/
-		public isInstanceTemporary(): boolean {
-			return !this.isToValue && !this.isSingleton;
-		}
+		// public isInstanceTemporary(): boolean {
+		// 	return !this.isToValue && !this.isSingleton;
+		// }
 	}
 }

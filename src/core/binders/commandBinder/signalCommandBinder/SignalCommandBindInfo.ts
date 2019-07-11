@@ -130,7 +130,7 @@ module riggerIOC {
 			let ret = null;
 			let cmd: ICommand;
 			let cmdInfo: CommandInfo;
-			let canDispose: boolean = false;
+			// let canDispose: boolean = false;
 			let injectionInfo: InjectionBindInfo;
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
 				cmdInfo = this.commandsCls[i];
@@ -138,14 +138,13 @@ module riggerIOC {
 					cmd = cmdInfo.inst;
 				} else {
 					injectionInfo = this.injectionBinder.bind(cmdInfo.cls);
-					canDispose = injectionInfo.isInstanceTemporary();
+					// canDispose = injectionInfo.isInstanceTemporary;
 					cmd = injectionInfo.getInstance() as ICommand;
 				}
 
 				ret = cmd.execute(arg, ret);
-				if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+				if (riggerIOC.needAutoDispose(cmd)) {
 					riggerIOC.doAutoDispose(cmd);
-					canDispose = false;
 				}
 			}
 
@@ -158,7 +157,7 @@ module riggerIOC {
 			let ret = null;
 			let cmd: ICommand;
 			let cmdInfo: CommandInfo;
-			let canDispose: boolean;
+			// let canDispose: boolean;
 			let injectionBindInfo: InjectionBindInfo;
 
 			for (var i: number = 0; i < this.commandsCls.length; ++i) {
@@ -167,7 +166,7 @@ module riggerIOC {
 					cmd = cmdInfo.inst;
 				} else {
 					injectionBindInfo = this.injectionBinder.bind(cmdInfo.cls);
-					canDispose = injectionBindInfo.isInstanceTemporary();
+					// canDispose = injectionBindInfo.isInstanceTemporary();
 					cmd = injectionBindInfo.getInstance() as ICommand;
 				}
 
@@ -177,7 +176,7 @@ module riggerIOC {
 					cmd.execute(arg, ret);
 					let result: Result = await cmd.wait();
 
-					if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+					if (riggerIOC.needAutoDispose(cmd)) {
 						riggerIOC.doAutoDispose(cmd);
 					}
 
@@ -194,7 +193,7 @@ module riggerIOC {
 				else {
 					ret = cmd.execute(arg, ret);
 
-					if (riggerIOC.needAutoDispose(cmd) && canDispose) {
+					if (riggerIOC.needAutoDispose(cmd)) {
 						riggerIOC.doAutoDispose(cmd);
 					}
 				}

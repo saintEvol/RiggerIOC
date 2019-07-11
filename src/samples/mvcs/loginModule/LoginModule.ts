@@ -14,6 +14,7 @@ class LoginModule extends riggerIOC.ModuleContext {
     }
 
     onStart(): void {
+        console.log(`now start login module`)
         this.startLoginSignal.dispatch(1);
         this.loginSuccessSignal.on(this, this.onLoginSuccess);
     }
