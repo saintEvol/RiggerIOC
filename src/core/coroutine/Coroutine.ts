@@ -66,18 +66,18 @@ module riggerIOC {
 	}
 
 	/**
-	 * 等待命令执行完成
+	 * 等待执行完成
 	 * @param waitable 
 	 */
 	export function waitFor(waitable: IWaitable) {
 		return new Promise((resolve, reject) => {
 			if (waitable.isDone()) {
 				resolve(waitable.getResult());
-				waitable.reset();
+				// waitable.reset();
 			}
 			else if(waitable.isCanceled()){
 				reject(waitable.getReason());
-				waitable.reset();				
+				// waitable.reset();				
 			}
 			else {
 				waitable.setDoneCallback(resolve);

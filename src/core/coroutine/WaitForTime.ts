@@ -14,7 +14,7 @@
  *		limitations under the License.
  */
 module riggerIOC {
-	export class WaitForTime extends BaseWaitable {
+	export class WaitForTime extends SafeWaitable {
 		protected waitingMSeconds: number = null;
 
 		constructor() {
@@ -66,7 +66,7 @@ module riggerIOC {
 		 * 持续等待直到被打断
 		*/
 		forever(): WaitForTime {
-			if(this.timerId) clearTimeout(this.timerId)
+			if (this.timerId) clearTimeout(this.timerId)
 			this.timerId = null;
 			this.waitingMSeconds = null;
 
@@ -88,7 +88,7 @@ module riggerIOC {
 		 * 取消等待
 		 * @param reason 
 		 */
-		cancel(reason?) {
+		cancel(reason?: any) {
 			this.waitingMSeconds = null;
 			if (this.timerId !== null) clearTimeout(this.timerId);
 			this.timerId = null;

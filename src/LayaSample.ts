@@ -4,12 +4,13 @@ class GameMain {
     constructor() {
         Laya.init(600, 400, WebGL);
         // let t: Laya.TimeLine
-        
-        this.testApp();
+        this.testSeq();
+        // this.test()
+        // this.testApp();
     }
 
-    private async testApp(){
-        let app:riggerIOC.ApplicationContext = new MyAppContext();
+    private async testApp() {
+        let app: riggerIOC.ApplicationContext = new MyAppContext();
         await app.launch();
         console.log(`launch finished`);
 
@@ -47,8 +48,8 @@ class GameMain {
         t3.forSeconds(7, false);
         seq.add(t3, comHandler, ["t3"], cancelHandler, ["t3"])
 
-        setTimeout(this.interrupt, 2500, seq);
-        await seq.executeAsync();
+        // setTimeout(this.interrupt, 2500, seq);
+        await seq.execute();
         console.log("===complete===")
 
 
@@ -59,19 +60,19 @@ class GameMain {
         console.log("await null ");
 
         let t: riggerIOC.WaitForTime = new riggerIOC.WaitForTime();
-        console.log("before wait for");
+        console.log("before wait for 5");
         await t.forSeconds(5).wait();
-        console.log("after wait for");
+        console.log("after wait for 5");
         setTimeout(() => {
-            // t.cancel("test cancel");
+            t.cancel("test cancel");
         }, 4000);
-        try {
-            await t.forMSeconds(5000).wait();
-            console.log("after wait for");
-
-        } catch (error) {
-            console.log("canceled:" + error);
-
+        t.reset();
+        let ret = await t.forMSeconds(5000).wait();
+        if (ret.isFailed) {
+            console.log("after wait for 5000 failed or canceled:" + ret.reason);
+        }
+        else {
+            console.log("after wait for 5000 success");
         }
 
     }
@@ -108,7 +109,7 @@ class GameMain {
 
     }
 
-    private interrupt(container: riggerIOC.TaskExecutor){
+    private interrupt(container: riggerIOC.TaskExecutor) {
         container.cancel("just a test");
     }
 }

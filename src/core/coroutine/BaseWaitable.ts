@@ -21,7 +21,12 @@ module riggerIOC {
 		constructor() {
 		}
 
+		/**
+		 * 析构，析构时会先执行 cancel以退出执行
+		 */
 		dispose(): void {
+			this.cancel();
+
 			this.mReason = null;
 			this.mResult = null;
 			this.mDoneCallback = null;
@@ -58,7 +63,7 @@ module riggerIOC {
 		/** 
 		 * 是否正在等待
 		*/
-		isWaitting(): boolean{
+		isWaitting(): boolean {
 			return this.waitingTask != null;
 		}
 
@@ -87,18 +92,18 @@ module riggerIOC {
 		 * @param args 
 		 */
 		wait(...args): Promise<any> {
-			if(this.isWaitting()) return this.waitingTask;
+			if (this.isWaitting()) return this.waitingTask;
 			if (this.mIsDone) return this.mResult;
 			if (this.mIsCanceled) return this.mReason;
 
-			this.waitingTask = waitFor(this); 
+			this.waitingTask = waitFor(this);
 			this.startTask(...args);
-			if(!this.waitingTask){
+			if (!this.waitingTask) {
 				// 可能在开始任务时直接就完成了
-				if(this.mIsDone) return this.mResult;
-				if(this.mIsCanceled) return this.mReason;
+				if (this.mIsDone) return this.mResult;
+				if (this.mIsCanceled) return this.mReason;
 			}
-			
+
 			return this.waitingTask;
 		}
 
@@ -106,13 +111,13 @@ module riggerIOC {
 		 * 任务完成
 		*/
 		done(result = null): void {
-			if(this.mIsDone) return;
-			if(this.mIsCanceled) return;
-			
+			if (this.mIsDone) return;
+			if (this.mIsCanceled) return;
+
 			this.mIsDone = true;
 			this.mResult = result;
 
-			if(this.mDoneCallback){
+			if (this.mDoneCallback) {
 				this.mDoneCallback(result);
 				// this.reset();
 			}
@@ -123,14 +128,18 @@ module riggerIOC {
 			this.waitingTask = null;
 		}
 
+		/**
+		 * 取消执行
+		 * @param reason 
+		 */
 		cancel(reason = null): void {
-			if(this.mIsCanceled) return;
-			if(this.mIsDone) return;
+			if (this.mIsCanceled) return;
+			if (this.mIsDone) return;
 
 			this.mIsCanceled = true;
 			this.mReason = reason;
 
-			if(this.mCanceledCallback){
+			if (this.mCanceledCallback) {
 				this.mCanceledCallback(reason);
 				// this.reset();
 			}
@@ -141,7 +150,10 @@ module riggerIOC {
 			this.waitingTask = null;
 		}
 
-		reset():BaseWaitable {
+		/**
+		 * 重置，使得可以再次使用
+		 */
+		reset(): BaseWaitable {
 			this.mIsCanceled = false;
 			this.mIsDone = false;
 			this.mResult = null;

@@ -312,16 +312,16 @@ module riggerIOC {
 
 			if (delay > 0) {
 				let timer: WaitForTime = this.addTimer(idx);
-				try {
-					await timer.forMSeconds(delay).wait();
-				} catch (reason) {
-					cancel && cancel.runWith([].concat(cancelArgs, reason));
+				let ret = await timer.forMSeconds(delay).wait();
+				if (ret.isFailed) {
+					cancel && cancel.runWith([].concat(cancelArgs, ret.error));
 					this.syncLock.cancel();
 					timer.dispose();
 					timer = null;
 
 					return;
 				}
+				
 				timer.dispose();
 				timer = null;
 			}
