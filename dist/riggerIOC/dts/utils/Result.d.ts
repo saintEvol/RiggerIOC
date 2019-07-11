@@ -6,7 +6,7 @@ declare module riggerIOC {
         result: ResultType;
         error: ErrorType;
         constructor(result?: ResultType, error?: ErrorType);
-        isOk(): boolean;
-        isFailed(): boolean;
+        readonly isOk: boolean;
+        readonly isFailed: boolean;
     }
 }

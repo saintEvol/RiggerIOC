@@ -11,12 +11,12 @@ module riggerIOC {
             this.error = error;
         }
 
-        isOk(): boolean {
+        get isOk(): boolean {
             return this.error == null || this.error == undefined;
         }
 
-        isFailed(): boolean {
-            return !this.isOk();
+        get isFailed(): boolean {
+            return !this.isOk;
         }
     }
 }

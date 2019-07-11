@@ -181,7 +181,7 @@ module riggerIOC {
 						riggerIOC.doAutoDispose(cmd);
 					}
 
-					if (result.isOk()) {
+					if (result.isOk) {
 						ret = result.result;
 						this.executingCommand = null;
 					}
