@@ -20,6 +20,7 @@ class LoginModule extends riggerIOC.ModuleContext {
     }
 
     dispose():void{
+        console.log(`now dispose login module`)
         super.dispose();
     }
 

@@ -16,11 +16,12 @@ class InitFighterInfoCommand extends riggerIOC.WaitableCommand {
     private startFightSignal: StartFightSignal;
 
     async execute(info: FighterInfo) {
-        console.log(`now set fighter info, fight mode idx:${this.model.selfIdx}`)
+        // console.log(`now set fighter info, fight mode idx:${this.model.selfIdx}`);
         this.model.setFighterInfo(info.name, info.hp);
         await riggerIOC.waitForSeconds(1000);
         if (!this.isCanceled()) {
             this.startFightSignal.dispatch();
+            this.done();
         }
         else {
             console.log(`canceled InitFighterInfoCommand`)

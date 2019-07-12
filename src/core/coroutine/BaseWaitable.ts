@@ -15,8 +15,10 @@
  */
 /**
 * 一个可以使用协程等待的基础实现
+* @autoDispose
 */
 module riggerIOC {
+	@riggerIOC.autoDispose
 	export class BaseWaitable implements riggerIOC.IWaitable {
 		constructor() {
 		}

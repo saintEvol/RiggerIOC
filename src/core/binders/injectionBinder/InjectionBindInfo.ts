@@ -87,9 +87,6 @@ module riggerIOC {
 		public toValue(value: any): InjectionBindInfo {
 			this.isToValue = true;
 			this.toSingleton();
-			if (value !== null && value !== undefined) {
-				riggerIOC.addRefCount(value);
-			}
 			this.instance = value;
 			return this;
 		}
