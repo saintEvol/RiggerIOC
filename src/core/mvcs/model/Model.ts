@@ -16,6 +16,6 @@
 module riggerIOC{
 	@riggerIOC.autoDispose
 	export abstract class Model{
-		abstract dispose();
+		dispose(){}
 	}
 }

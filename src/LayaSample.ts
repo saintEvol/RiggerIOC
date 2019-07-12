@@ -14,9 +14,9 @@ class GameMain {
         await app.launch();
         console.log(`launch finished`);
 
-        // await riggerIOC.waitForSeconds(5000);
-        // console.log(`[time:${Laya.Browser.now()}]now stop app`);
-        // await app.dispose();
+        await riggerIOC.waitForSeconds(5000);
+        console.log(`[time:${Laya.Browser.now()}]now stop app`);
+        await app.dispose();
         // console.log(`[time:${Laya.Browser.now()}]stop app finished`)
         // await riggerIOC.waitForSeconds(2000);
         // console.log(`[time:${Laya.Browser.now()}]restart`);

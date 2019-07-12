@@ -8,5 +8,6 @@ declare module riggerIOC {
     }
     abstract class Command implements ICommand {
         abstract execute(...arg: any[]): any;
+        dispose(): void;
     }
 }

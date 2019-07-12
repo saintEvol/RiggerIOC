@@ -1,36 +1,42 @@
 /*
 * name;
 */
-@riggerIOC.autoDispose
-class FightModel extends riggerIOC.Model{
-    constructor(){
+///<reference path = "./FightModelT.ts" />
+class FightModel extends riggerIOC.Model {
+
+    @riggerIOC.inject(FightModelT)
+    private modelT: FightModelT
+
+    constructor() {
         super();
+        this.modelT;
         // FightModel.insts.push(this);
     }
 
-    dispose(){
+    dispose() {
         console.log('in fight model dispose, set fighter null')
         this.fighter = null;
+        super.dispose();
     }
 
-    subHp(hp:number){
+    subHp(hp: number) {
         this.fighter.hp = Math.max(0, this.fighter.hp - hp);
     }
 
-    isLive(test:number):boolean{
+    isLive(test: number): boolean {
         console.log('fight command idx:' + test);
         return this.fighter.hp > 0;
     }
 
-    public get hp():number{
+    public get hp(): number {
         return this.fighter.hp;
     }
 
-    private fighter:FighterInfo;
-    setFighterInfo(name:string, hp:number){
+    private fighter: FighterInfo;
+    setFighterInfo(name: string, hp: number) {
         console.log(`[time:${Laya.Browser.now()}]set fighter info,name:${name}, hp:${hp}`);
-        
-        if(!this.fighter) return this.fighter = new FighterInfo(name, hp);
+
+        if (!this.fighter) return this.fighter = new FighterInfo(name, hp);
         this.fighter.name = name;
         this.fighter.hp = hp;
     }

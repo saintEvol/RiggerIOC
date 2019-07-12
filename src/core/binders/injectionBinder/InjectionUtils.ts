@@ -60,7 +60,7 @@ module riggerIOC {
 			let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
 			if (injections && injections.length > 0) {
 				for (let i: number = 0; i < injections.length; ++i) {
-					// console.log(`clear injection in obj, attr:${injections[i]}, value:${this[injections[i]]}`);
+					// console.log(`clear injection in obj:${this.constructor}, attr:${injections[i]}, value:${this[injections[i]]}`);
 					this[injections[i]] = null;
 				}
 			}
@@ -97,11 +97,10 @@ module riggerIOC {
 	const REF_COUNT_KEY: string = "$ref_num";
 	export function addRefCount(obj: any, acc: number = 1) {
 		if (!obj[REF_COUNT_KEY]) {
-			obj[REF_COUNT_KEY] = 1;
+			obj[REF_COUNT_KEY] = 0;
 		}
-		else {
-			obj[REF_COUNT_KEY] += acc;
-		}
+		
+		obj[REF_COUNT_KEY] += acc;
 
 		// 如果引用计数<=0,则检查是否要析构
 		if (obj[REF_COUNT_KEY] <= 0) {
@@ -148,16 +147,18 @@ module riggerIOC {
 			return v;
 		};
 		descripter.set = function (v) {
-			// 先将原来的值的引用计数-1
+			// 先将新值引用计数+1
+			// 如果先减旧值计数，可能触发其析构
+			if (v) {
+				addRefCount(v)
+			}
+
+			// 再将原来的值的引用计数-1
 			let oldV = this[k];
 			if (oldV) {
 				addRefCount(oldV, -1);
 			}
 
-			// 再将新值引用计数+1
-			if (v) {
-				addRefCount(v)
-			}
 			this[k] = v;
 		}
 	}

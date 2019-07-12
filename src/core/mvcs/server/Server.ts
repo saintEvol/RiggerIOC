@@ -16,6 +16,6 @@
 module riggerIOC {
 	@autoDispose
 	export abstract class Server {
-		abstract dispose();
+		dispose(){}
 	}
 }

@@ -14,7 +14,7 @@
  *		limitations under the License.
  */
 module riggerIOC {
-	// @riggerIOC.autoDispose
+	@riggerIOC.autoDispose
 	export class Signal<T>{
 		constructor() {
 
