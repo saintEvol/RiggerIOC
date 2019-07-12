@@ -106,10 +106,18 @@ module riggerIOC {
 		// 如果引用计数<=0,则检查是否要析构
 		if (obj[REF_COUNT_KEY] <= 0) {
 			delete obj[REF_COUNT_KEY];
-			// 就否需要自动析构
+			// 是否需要自动析构
 			if (needAutoDispose(obj)) {
 				doAutoDispose(obj);
 			}
+		}
+	}
+
+	export function clearRefCount(obj: any) {
+		delete obj[REF_COUNT_KEY];
+		// 是否需要自动析构
+		if (needAutoDispose(obj)) {
+			doAutoDispose(obj);
 		}
 	}
 

@@ -73,23 +73,30 @@ module riggerIOC {
 		 * @param view 
 		 * @param mediator 
 		 */
-		public detach(view: View, mediator: Mediator) {
-			let tuples: ViewMediatorTuple[] = this.bindTuples;
-			if (!tuples) return;
-			let len: number = tuples.length;
-			if (len <= 0) return;
-			let temp: ViewMediatorTuple[] = [];
-			for (var i: number = 0; i < len; ++i) {
-				if (tuples[i].view === view) {
-					tuples[i].dispose();
-				}
-				else {
-					temp.push(tuples[i]);
-				}
-			}
+		public detach(view: View, mediator: Mediator): void {
+			if (view)
+				clearRefCount(view);
 
-			this.bindTuples = temp;
+			if (mediator)
+				clearRefCount(mediator);
 		}
+		// public detach(view: View, mediator: Mediator) {
+		// 	let tuples: ViewMediatorTuple[] = this.bindTuples;
+		// 	if (!tuples) return;
+		// 	let len: number = tuples.length;
+		// 	if (len <= 0) return;
+		// 	let temp: ViewMediatorTuple[] = [];
+		// 	for (var i: number = 0; i < len; ++i) {
+		// 		if (tuples[i].view === view && tuples[i].mediator == mediator) {
+		// 			tuples[i].dispose();
+		// 		}
+		// 		else {
+		// 			temp.push(tuples[i]);
+		// 		}
+		// 	}
+
+		// 	this.bindTuples = temp;
+		// }
 
 		/**
 		 * 获取已经和视图绑定的mediator实例

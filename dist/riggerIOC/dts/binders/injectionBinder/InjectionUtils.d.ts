@@ -22,4 +22,5 @@ declare module riggerIOC {
      */
     function retrievAble(v?: number): (target: any, keyStr: string) => void;
     function addRefCount(obj: any, acc?: number): void;
+    function clearRefCount(obj: any): void;
 }
