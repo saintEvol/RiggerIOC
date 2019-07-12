@@ -3,7 +3,7 @@
     "module": "commonjs",
     "outFile": "bin/js/game.js",
     "target": "es5",
-    "sourceMap": true,
+    "sourceMap": false,
     "experimentalDecorators": true,
     "lib": [
       "es2015",

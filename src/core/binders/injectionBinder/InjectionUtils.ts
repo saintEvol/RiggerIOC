@@ -99,7 +99,7 @@ module riggerIOC {
 		if (!obj[REF_COUNT_KEY]) {
 			obj[REF_COUNT_KEY] = 0;
 		}
-		
+
 		obj[REF_COUNT_KEY] += acc;
 
 		// 如果引用计数<=0,则检查是否要析构
@@ -185,16 +185,18 @@ module riggerIOC {
 				return v;
 			},
 			set: function (v) {
-				// 先将原来的值的引用计数-1
+				// 先将新值引用计数+1
+				// 如果先减旧值计数，可能触发其析构
+				if (v) {
+					addRefCount(v)
+				}
+
+				// 再将原来的值的引用计数-1
 				let oldV = this[k];
 				if (oldV) {
 					addRefCount(oldV, -1);
 				}
 
-				// 再将新值引用计数+1
-				if (v) {
-					addRefCount(v)
-				}
 				this[k] = v;
 			},
 			enumerable: true,

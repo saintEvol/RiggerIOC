@@ -17,9 +17,9 @@ var RiggerIOCPublishUtils = {
         var tsPro = RiggerIOCUtils.createTSProject();
         // console.log(` start publish, Rigger:${Rigger.toString()}, init:${Rigger.init}, config:${Rigger.applicationConfig}`); 
         
-        var tsResult = gulp.src("src/core/**/*.ts").pipe(sorter()).pipe(tsPro());
+        var tsResult = gulp.src("src/core/**/*.ts").pipe(tsPro());
         tsResult.dts.pipe(gulp.dest("./dist/riggerIOC/dts"));
-        tsResult.js.pipe(concat("riggerIOC.min.js")).pipe(gulp.dest("./dist/riggerIOC/bin"));        
+        // tsResult.js.pipe(concat("riggerIOC.min.js")).pipe(gulp.dest("./dist/riggerIOC/bin"));        
     },
 }
 

@@ -1,17 +1,15 @@
 var gulp = require("gulp");
-var ts = require("gulp-typescript"); // 需要安装包
-var glob = require("glob");
-var path = require("path");
-var del = require("del");
-var sd = require("silly-datetime");
-var colors = require("colors");
-var nodemon = require("gulp-nodemon");
-var runSeq = require("gulp-sequence");
+var exec = require("child_process").exec
 
 var RiggerPublishUtils = require("./utils/riggerIOCPublishUtils.js");
 var RiggerIOC = require("./utils/riggerIOC.js");
 
 gulp.task("publish", function(){
+    var cmd = 'tsc-plus -p "." --outDir dist/riggerIOC --reorderFiles true --outFile dist/riggerIOC/bin/riggerIOC.min.js ';
+    exec(cmd, function(error, stdout, stdErr){
+        console.log("std out:" + stdout);
+        console.log("std err:" + stdErr);
+    })
     RiggerPublishUtils.publish();     
 })
 
