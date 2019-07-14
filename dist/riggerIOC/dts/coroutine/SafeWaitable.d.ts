@@ -7,5 +7,13 @@ declare module riggerIOC {
         done(reason?: ResultType): void;
         cancel(reason?: ErrorType): void;
         wait(...args: any[]): Promise<Result<ResultType, ErrorType>>;
+        /**
+         * 获取原因(打断,出错等)
+         */
+        getReason(): ErrorType;
+        /**
+         * 获取结果
+         */
+        getResult(): ResultType;
     }
 }

@@ -53,5 +53,23 @@ module riggerIOC {
         wait(...args: any[]): Promise<Result<ResultType, ErrorType>> {
             return super.wait(...args);
         }
+
+        /**
+         * 获取原因(打断,出错等)
+         */
+        public getReason(): ErrorType {
+            let ret: Result<ResultType, ErrorType> = super.getReason();
+            if (!ret) return null;
+            return ret.reason;
+        }
+
+        /**
+         * 获取结果
+         */
+        public getResult(): ResultType {
+            let ret: Result<ResultType, ErrorType> = super.getResult();
+            if(!ret) return null;
+            return ret.result;
+        }
     }
 }
