@@ -24,15 +24,15 @@ module riggerIOC {
 			this.infos[bindId] = info;
 
 			// 如果是debug状态，则进行统计
-			if (ApplicationContext.debug) {
-				let app: ApplicationContext = ApplicationContext.getApplication(this.appId);
-				let old = app.injectionStatistics[bindId] || [];
-				// 移除owner一样的
-				let owner = this.owner;
-				old = old.filter((v, idx, arr) => v.owner !== owner);
-				old.push(new InjectionStatistics(bindId, owner, cls));
-				app.injectionStatistics[bindId] = old;
-			}
+			// if (ApplicationContext.debug) {
+			// 	let app: ApplicationContext = ApplicationContext.getApplication(this.appId);
+			// 	let old = app.injectionStatistics[bindId] || [];
+			// 	// 移除owner一样的
+			// 	let owner = this.owner;
+			// 	old = old.filter((v, idx, arr) => v.owner !== owner);
+			// 	old.push(new InjectionStatistics(bindId, owner, cls));
+			// 	app.injectionStatistics[bindId] = old;
+			// }
 
 			return info;
 		}

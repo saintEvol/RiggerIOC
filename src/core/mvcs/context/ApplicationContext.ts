@@ -14,46 +14,46 @@
  *		limitations under the License.
  */
 module riggerIOC {
-	export class InjectionStatistics {
-		constructor(id: string | number, owner?: any, fromConstructor?: any, toConstructor?: any) {
-			this.id = id;
-			this.owner = owner;
-			this.fromConstructor = fromConstructor;
-			this.toConstructor = toConstructor;
-		}
+	// export class InjectionStatistics {
+	// 	constructor(id: string | number, owner?: any, fromConstructor?: any, toConstructor?: any) {
+	// 		this.id = id;
+	// 		this.owner = owner;
+	// 		this.fromConstructor = fromConstructor;
+	// 		this.toConstructor = toConstructor;
+	// 	}
 
-		dispose() {
-			this.owner = this.fromConstructor = this.toConstructor = null;
-		}
+	// 	dispose() {
+	// 		this.owner = this.fromConstructor = this.toConstructor = null;
+	// 	}
 
-		id: string | number;
-		owner: any;
-		fromConstructor: any;
-		toConstructor: any;
-	}
+	// 	id: string | number;
+	// 	owner: any;
+	// 	fromConstructor: any;
+	// 	toConstructor: any;
+	// }
 
 	/**
 	 * 应用上下文，表示一个应用
 	 * 可以等待应用启动完成
 	 */
 	export abstract class ApplicationContext extends BaseWaitable implements IContext {
-		/**
-		 * 是否开启debug，开启debug后会开启很多调试信息
-		 */
-		public static get debug(): boolean {
-			return ApplicationContext.mDebug;
-		}
-		public static set debug(ifEnable: boolean) {
-			ApplicationContext.mDebug = ifEnable;
-		}
-		private static mDebug: boolean = false;
 
-		public injectionStatistics: { [id: string]: InjectionStatistics[] }
+		/**
+		 * 注入追踪信息
+		 */
+		public injectionTracks: InjectionTrack[];
 		protected static appIdsMap: { [appId: string]: any };
+
+		/**
+		 * 全局的注入追踪信息（不属于任何一个App)
+		 */
+		public static globalInjectionTracks: InjectionTrack[] = [];
 
 		public static getApplication(appId: string | number): ApplicationContext {
 			return ApplicationContext.appIdsMap[appId];
 		}
+
+		public analyser: ApplicationContextAnalyser;
 
 		/**
 		 * 当前自增的appId
@@ -109,7 +109,8 @@ module riggerIOC {
 		 */
 		constructor(appId?: string | number, ifLaunchImmediatly: boolean = true) {
 			super();
-			this.injectionStatistics = {};
+			this.injectionTracks = [];
+			this.disposing = false;
 
 			// 分配appId
 			if (appId == null || appId == undefined) {
@@ -123,6 +124,10 @@ module riggerIOC {
 			this.appId = appId;
 			if (!ApplicationContext.appIdsMap) ApplicationContext.appIdsMap = {};
 			ApplicationContext.appIdsMap[appId] = this;
+
+			if (riggerIOC.debug) {
+				this.analyser = new ApplicationContextAnalyser(this);
+			}
 
 			// 绑定命令绑定器，默认绑定为SignalCommandBinder
 			this.bindCommandBinder();
@@ -150,10 +155,14 @@ module riggerIOC {
 		// 	return 
 		// }
 
+		private disposing: boolean = false;
 		public async dispose() {
-			this.injectionStatistics = null;
+			if (this.disposing) return;
+			this.disposing = true;
+			if (!riggerIOC.debug) {
+				delete ApplicationContext.appIdsMap[this.appId];
+			}
 
-			delete ApplicationContext.appIdsMap[this.appId];
 			for (var i: number = this.modules.length - 1; i >= 0; --i) {
 				this.injectionBinder.unbind(this.modules[i]);
 				// let inst: ModuleContext = this.modulesInstance[i];
@@ -252,5 +261,31 @@ module riggerIOC {
 		protected bindMediationBinder(): void {
 			this.injectionBinder.bind(MediationBinder).toValue(new MediationBinder(this.injectionBinder));
 		}
+	}
+
+	export class ApplicationContextAnalyser {
+		public appId: string | number;
+		public injectionTracks: InjectionTrack[] = []
+		constructor(app: ApplicationContext) {
+			this.appId = app.appId;
+			this.injectionTracks = app.injectionTracks;
+		}
+
+		/**
+		 * 获取未释放的追踪信息
+		 */
+		public get stickyInsts(): InjectionTrack[] {
+			let ret: InjectionTrack[] = [];
+			for (var i: number = 0; i < this.injectionTracks.length; ++i) {
+				let tempTrack: InjectionTrack = this.injectionTracks[i];
+				let refCount = riggerIOC.getRefCount(tempTrack.inst);
+				if(refCount > 0){
+					ret.push(tempTrack);
+				}
+			}
+
+			return ret;
+		}
+
 	}
 }

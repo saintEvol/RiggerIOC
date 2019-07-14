@@ -8,7 +8,7 @@ declare module riggerIOC {
      * 		this.done()
     */
     abstract class ModuleContext extends BaseWaitable implements IContext {
-        private applicationContext;
+        protected applicationContext: ApplicationContext;
         /**
          * 模块初始化（启动）完成后的回调命令
          * 在上下文启动完成后，可以通过执行此命令通知框架

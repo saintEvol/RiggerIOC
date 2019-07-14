@@ -1,6 +1,7 @@
 /*
 * name;
 */
+riggerIOC.setDebug();
 class MyAppContext extends riggerIOC.ApplicationContext {
     @riggerIOC.inject(riggerIOC.WaitForTime)
     private timer: riggerIOC.WaitForTime;

@@ -36,5 +36,18 @@ declare module riggerIOC {
          * 获取实例
          */
         getInstance<T>(): T;
+        /**
+         * 获取实例(Debug版)
+         */
+        getInstanceDebug<T>(): T;
+        /**
+         * 绑定到值，此时会自动进行单例绑定
+         * 可以绑定为null 或 undefined
+         *
+         * 此函数为toValue的Debug版
+         * @param value
+         */
+        toValueDebug(value: any): InjectionBindInfo;
     }
+    function setInjectinBindInfoDebug(): void;
 }

@@ -32,16 +32,17 @@ module riggerIOC {
 			return this.mInstance;
 		}
 		private set instance(v: any) {
-			// 先将原来的值的引用计数-1
+			// 先将新值引用计数+1
+			if (v) {
+				addRefCount(v)
+			}
+
+			// 再将原来的值的引用计数-1
 			let oldV = this.mInstance;
 			if (oldV) {
 				addRefCount(oldV, -1);
 			}
 
-			// 再将新值引用计数+1
-			if (v) {
-				addRefCount(v)
-			}
 			this.mInstance = v;
 		}
 		private mInstance: any = null;
@@ -113,11 +114,50 @@ module riggerIOC {
 			return inst;
 		}
 
-		/** 
-		 * 该绑定产生的值是否是临时的
-		*/
-		// public isInstanceTemporary(): boolean {
-		// 	return !this.isToValue && !this.isSingleton;
-		// }
+		/**
+		 * 获取实例(Debug版)
+		 */
+		public getInstanceDebug<T>(): T {
+			if (this.isToValue) return this.instance;
+			if (this.instance) return this.instance;
+			let inst: T = new (this.realClass)();
+
+			// 插入追踪信息
+			riggerIOC.setAppId(inst, this.appId);
+			riggerIOC.insertInjectionTrack(inst);
+
+			if (this.isSingleton) {
+				this.instance = inst;
+			}
+			return inst;
+		}
+
+		/**
+		 * 绑定到值，此时会自动进行单例绑定
+		 * 可以绑定为null 或 undefined
+		 * 
+		 * 此函数为toValue的Debug版
+		 * @param value 
+		 */
+		public toValueDebug(value: any): InjectionBindInfo {
+			this.isToValue = true;
+			this.toSingleton();
+			this.instance = value;
+
+			// 插入追踪信息
+			if (value) {
+				riggerIOC.setAppId(value, this.appId);
+				riggerIOC.insertInjectionTrack(value, false);
+			}
+
+			return this;
+		}
+
 	}
+
+	export function setInjectinBindInfoDebug() {
+		InjectionBindInfo.prototype.toValue = InjectionBindInfo.prototype.toValueDebug;
+		InjectionBindInfo.prototype.getInstance = InjectionBindInfo.prototype.getInstanceDebug;
+	}
+	
 }

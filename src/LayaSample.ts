@@ -17,6 +17,14 @@ class GameMain {
         await riggerIOC.waitForSeconds(5000);
         console.log(`[time:${Laya.Browser.now()}]now stop app`);
         await app.dispose();
+        let tracks = app.analyser.stickyInsts;
+        for(var i:number = 0; i < tracks.length; ++i){
+            console.log(`${tracks[i]}`);
+        }
+
+        while(true){
+            await riggerIOC.waitForSeconds(2000);
+        }
         // console.log(`[time:${Laya.Browser.now()}]stop app finished`)
         // await riggerIOC.waitForSeconds(2000);
         // console.log(`[time:${Laya.Browser.now()}]restart`);

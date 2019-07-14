@@ -24,7 +24,7 @@ module riggerIOC {
 	*/
 	@riggerIOC.autoDispose
 	export abstract class ModuleContext extends BaseWaitable implements IContext {
-		private applicationContext: ApplicationContext;
+		protected applicationContext: ApplicationContext;
 
 		/**
 		 * 模块初始化（启动）完成后的回调命令

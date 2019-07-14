@@ -9,6 +9,9 @@ class LoginModule extends riggerIOC.ModuleContext {
     @riggerIOC.inject(LoginSuccessSignal)
     private loginSuccessSignal: LoginSuccessSignal;
 
+    @riggerIOC.inject(LoginSuccessSignal)
+    private loginSuccessSignal1: LoginSuccessSignal;
+
     constructor(app: riggerIOC.ApplicationContext) {
         super(app);
     }
@@ -42,6 +45,10 @@ class LoginModule extends riggerIOC.ModuleContext {
     private async onLoginSuccess(playerId: number) {
         console.log(`[time:${Laya.Browser.now()}]login module init finished, and logined player:${playerId}`);
         await riggerIOC.waitForSeconds(5000);
+
+        this.loginSuccessSignal1;
+        this.loginSuccessSignal = null;
+        this.applicationContext.analyser;
         this.done();
     }
 }
