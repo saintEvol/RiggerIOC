@@ -18,6 +18,11 @@ declare module riggerIOC {
         static getApplication(appId: string | number): ApplicationContext;
         analyser: ApplicationContextAnalyser;
         /**
+         * 释放appID,只在debug模式下有效
+         * @param appId
+         */
+        static freeAppId(appId: string | number): void;
+        /**
          * 当前自增的appId
          */
         private static mNowAppId;

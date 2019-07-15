@@ -56,6 +56,15 @@ module riggerIOC {
 		public analyser: ApplicationContextAnalyser;
 
 		/**
+		 * 释放appID,只在debug模式下有效
+		 * @param appId 
+		 */
+		public static freeAppId(appId: string | number): void {
+			if (!riggerIOC.debug) return;
+			delete ApplicationContext.appIdsMap[appId];
+		}
+
+		/**
 		 * 当前自增的appId
 		 */
 		private static mNowAppId: number = 1;
@@ -279,7 +288,7 @@ module riggerIOC {
 			for (var i: number = 0; i < this.injectionTracks.length; ++i) {
 				let tempTrack: InjectionTrack = this.injectionTracks[i];
 				let refCount = riggerIOC.getRefCount(tempTrack.inst);
-				if(refCount > 0){
+				if (refCount > 0) {
 					ret.push(tempTrack);
 				}
 			}
