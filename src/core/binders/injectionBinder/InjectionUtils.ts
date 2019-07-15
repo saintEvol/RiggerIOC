@@ -97,7 +97,6 @@ module riggerIOC {
 			}
 
 			return ret;
-
 		}
 
 		toString(): string {
@@ -111,15 +110,19 @@ module riggerIOC {
 			let stickOwners: [InjectionTrack, InjectionTrackOwnerShip][] = this.stickyOwners;
 			for (var i: number = 0; i < stickOwners.length; ++i) {
 				let fieldNames: string = "";
-				for( var j:number = 0; j < stickOwners[i][1].injectionName.length; ++j){
+				for (var j: number = 0; j < stickOwners[i][1].injectionName.length; ++j) {
 					fieldNames += stickOwners[i][1].injectionName[j] + ", ";
 				}
-				if(fieldNames.length > 0){
+				if (fieldNames.length > 0) {
 					fieldNames = fieldNames.substring(0, fieldNames.length - 1);
 				}
 				refDetails += `${stickOwners[i][0].typeName} : ${stickOwners[i][1].refNum} => [${fieldNames}] ,`;
 			}
+			if(refDetails.length <= 0) refDetails = "无";
 			ret += `现在被谁引用(sticky):\t${refDetails}\r\n`;
+
+			let error: Error = getDisposeException(this.inst);
+			ret += `析构错误: \t\t${error ? error.stack : "无"}`;
 
 			return ret;
 		}
@@ -245,7 +248,7 @@ module riggerIOC {
 		// 获取注入的字段
 		// let injections: string[] = InjectionBinder.instance.getRegisteredInjection(protoType);
 		// hack dispose方法		
-		protoType.dispose = hackDispose(fun);
+		protoType.dispose = riggerIOC.hackDispose(fun);
 		protoType["$autoDis"] = true;
 
 	}
@@ -263,7 +266,7 @@ module riggerIOC {
 		obj.dispose();
 	}
 
-	function hackDispose(disposeFun: Function) {
+	export function hackDispose(disposeFun: Function) {
 		return function (): void {
 			disposeFun && disposeFun.apply(this);
 			let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
@@ -274,6 +277,38 @@ module riggerIOC {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 此版本会记录析构过程中出现的错误
+	 * @param disposeFun 
+	 */
+	export function hackDisposeDebug(disposeFun: Function) {
+		return function (): void {
+			setDisposeException(this, undefined);
+			try {
+				disposeFun && disposeFun.apply(this);
+				let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
+				if (injections && injections.length > 0) {
+					for (let i: number = 0; i < injections.length; ++i) {
+						// console.log(`clear injection in obj:${this.constructor}, attr:${injections[i]}, value:${this[injections[i]]}`);
+						this[injections[i]] = null;
+					}
+				}
+			} catch (error) {
+				setDisposeException(this, error);
+			}
+		}
+	}
+
+	export function getDisposeException(obj: any): Error {
+		if (!obj) return null;
+		return obj["$riggerIOC_dispose_stack"];
+	}
+
+	export function setDisposeException(obj, error: Error): void {
+		if (!obj) return;
+		obj["$riggerIOC_dispose_stack"] = error;
 	}
 
 	/**
@@ -508,6 +543,7 @@ module riggerIOC {
 
 	export function setDebug(): void {
 		riggerIOC.debug = true;
+		riggerIOC.hackDispose = riggerIOC.hackDisposeDebug;
 		riggerIOC.doInjectAttr = doInjectAttrDebug;
 		riggerIOC.doInjectGetterSetter = doInjectGetterSetterDebug;
 		riggerIOC.setInjectinBindInfoDebug();

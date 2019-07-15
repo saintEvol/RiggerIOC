@@ -296,5 +296,21 @@ module riggerIOC {
 			return ret;
 		}
 
+		/**
+		 * 有错误的实例
+		 */
+		public get errorInsts(): InjectionTrack[] {
+			let ret: InjectionTrack[] = [];
+			for (var i: number = 0; i < this.injectionTracks.length; ++i) {
+				let tempTrack: InjectionTrack = this.injectionTracks[i];
+				let error: Error = riggerIOC.getDisposeException(tempTrack.inst);
+				if (error) {
+					ret.push(tempTrack);
+				}
+			}
+
+			return ret;
+		}
+
 	}
 }

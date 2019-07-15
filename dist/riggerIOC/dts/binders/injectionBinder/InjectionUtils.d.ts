@@ -77,6 +77,14 @@ declare module riggerIOC {
      */
     function needAutoDispose(obj: any): boolean;
     function doAutoDispose(obj: any): void;
+    function hackDispose(disposeFun: Function): () => void;
+    /**
+     * 此版本会记录析构过程中出现的错误
+     * @param disposeFun
+     */
+    function hackDisposeDebug(disposeFun: Function): () => void;
+    function getDisposeException(obj: any): Error;
+    function setDisposeException(obj: any, error: Error): void;
     /**
      * 注入装饰器
      * @param ctr

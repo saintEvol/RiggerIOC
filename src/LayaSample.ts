@@ -18,11 +18,17 @@ class GameMain {
         console.log(`[time:${Laya.Browser.now()}]now stop app`);
         await app.dispose();
         let tracks = app.analyser.stickyInsts;
-        for(var i:number = 0; i < tracks.length; ++i){
-            console.log(`${tracks[i]}`);
-        }
 
-        while(true){
+
+        while (true) {
+            for (var i: number = 0; i < tracks.length; ++i) {
+                console.log(`${tracks[i]}`);
+            }
+
+            let errorTracks = app.analyser.errorInsts;
+            for (var i: number = 0; i < errorTracks.length; ++i) {
+                console.log(`${errorTracks[i]}`);
+            }
             await riggerIOC.waitForSeconds(2000);
         }
         // console.log(`[time:${Laya.Browser.now()}]stop app finished`)

@@ -77,5 +77,9 @@ declare module riggerIOC {
          * 获取未释放的追踪信息
          */
         readonly stickyInsts: InjectionTrack[];
+        /**
+         * 有错误的实例
+         */
+        readonly errorInsts: InjectionTrack[];
     }
 }
