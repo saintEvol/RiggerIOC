@@ -198,7 +198,9 @@ module riggerIOC {
 	}
 
 	export function addOwnerShip(obj: any, attrName: string, owner: any, acc: number = 1, ifInjected: boolean = false) {
-		let track: InjectionTrack = riggerIOC.getInjectionTrack(obj);
+		// todo 如果此时没有obj的track，可能意味着，此obj是手动创建的
+		let track: InjectionTrack = riggerIOC.insertInjectionTrack(obj, ifInjected);
+		// if(!track) track = riggerIOC.insertInjectionTrack(obj, ifInjected)
 		let owners: InjectionTrack[] = track.owners;
 		let ownershipStates: InjectionTrackOwnerShip[] = track.ownershipStates;
 		let idx: number = owners.findIndex(e => e.inst == owner);
