@@ -85,6 +85,11 @@ module riggerIOC {
 		public ownershipStates: InjectionTrackOwnerShip[] = [];
 
 		/**
+		 * 析构错误
+		 */
+		public disposeError: Error = null;
+
+		/**
 		 * 所有仍然粘住未释放的所有者(仍然引用本对象的所有者)
 		 * 
 		 */
@@ -121,7 +126,7 @@ module riggerIOC {
 			if(refDetails.length <= 0) refDetails = "无";
 			ret += `现在被谁引用(sticky):\t${refDetails}\r\n`;
 
-			let error: Error = getDisposeException(this.inst);
+			let error: Error = this.disposeError;
 			ret += `析构错误: \t\t${error ? error.stack : "无"}`;
 
 			return ret;
@@ -285,7 +290,7 @@ module riggerIOC {
 	 */
 	export function hackDisposeDebug(disposeFun: Function) {
 		return function (): void {
-			setDisposeException(this, undefined);
+			setDisposeError(this, null);
 			try {
 				disposeFun && disposeFun.apply(this);
 				let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
@@ -296,19 +301,23 @@ module riggerIOC {
 					}
 				}
 			} catch (error) {
-				setDisposeException(this, error);
+				setDisposeError(this, error);
 			}
 		}
 	}
 
-	export function getDisposeException(obj: any): Error {
+	export function getDisposeError(obj: any): Error {
 		if (!obj) return null;
-		return obj["$riggerIOC_dispose_stack"];
+		let track: InjectionTrack = riggerIOC.getInjectionTrack(obj);
+		if(!track) return null;
+		return track.disposeError;
 	}
 
-	export function setDisposeException(obj, error: Error): void {
+	export function setDisposeError(obj, error: Error): void {
 		if (!obj) return;
-		obj["$riggerIOC_dispose_stack"] = error;
+		let track: InjectionTrack = riggerIOC.getInjectionTrack(obj);
+		if(!track) track = riggerIOC.insertInjectionTrack(obj, false);
+		track.disposeError = error
 	}
 
 	/**

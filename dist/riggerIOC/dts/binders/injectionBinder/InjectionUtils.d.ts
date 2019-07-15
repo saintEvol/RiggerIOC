@@ -43,6 +43,10 @@ declare module riggerIOC {
          */
         ownershipStates: InjectionTrackOwnerShip[];
         /**
+         * 析构错误
+         */
+        disposeError: Error;
+        /**
          * 所有仍然粘住未释放的所有者(仍然引用本对象的所有者)
          *
          */
@@ -83,8 +87,8 @@ declare module riggerIOC {
      * @param disposeFun
      */
     function hackDisposeDebug(disposeFun: Function): () => void;
-    function getDisposeException(obj: any): Error;
-    function setDisposeException(obj: any, error: Error): void;
+    function getDisposeError(obj: any): Error;
+    function setDisposeError(obj: any, error: Error): void;
     /**
      * 注入装饰器
      * @param ctr

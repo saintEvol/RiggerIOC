@@ -301,9 +301,10 @@ module riggerIOC {
 		 */
 		public get errorInsts(): InjectionTrack[] {
 			let ret: InjectionTrack[] = [];
-			for (var i: number = 0; i < this.injectionTracks.length; ++i) {
-				let tempTrack: InjectionTrack = this.injectionTracks[i];
-				let error: Error = riggerIOC.getDisposeException(tempTrack.inst);
+			let total: InjectionTrack[] = this.injectionTracks.concat(ApplicationContext.globalInjectionTracks);
+			for (var i: number = 0; i < total.length; ++i) {
+				let tempTrack: InjectionTrack = total[i];
+				let error: Error = tempTrack.disposeError
 				if (error) {
 					ret.push(tempTrack);
 				}
