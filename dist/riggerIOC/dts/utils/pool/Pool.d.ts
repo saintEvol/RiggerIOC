@@ -41,5 +41,11 @@ declare module riggerIOC {
          * @return 对象池中此类型的一个对象，如果对象池中无此类型的对象，则返回 null 。
          */
         getItem<T>(sign: string): T;
+        /**
+         *
+         * @param fun
+         */
+        forEach(fun: (e: any) => any): void;
+        dispose(): void;
     }
 }
