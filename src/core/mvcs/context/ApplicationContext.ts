@@ -285,8 +285,9 @@ module riggerIOC {
 		 */
 		public get stickyInsts(): InjectionTrack[] {
 			let ret: InjectionTrack[] = [];
-			for (var i: number = 0; i < this.injectionTracks.length; ++i) {
-				let tempTrack: InjectionTrack = this.injectionTracks[i];
+			let total: InjectionTrack[] = this.injectionTracks.concat(ApplicationContext.globalInjectionTracks);
+			for (var i: number = 0; i < total.length; ++i) {
+				let tempTrack: InjectionTrack = total[i];
 				let refCount = riggerIOC.getRefCount(tempTrack.inst);
 				if (refCount > 0) {
 					ret.push(tempTrack);

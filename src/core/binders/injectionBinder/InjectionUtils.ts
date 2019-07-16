@@ -123,7 +123,7 @@ module riggerIOC {
 				}
 				refDetails += `${stickOwners[i][0].typeName} : ${stickOwners[i][1].refNum} => [${fieldNames}] ,`;
 			}
-			if(refDetails.length <= 0) refDetails = "无";
+			if (refDetails.length <= 0) refDetails = "无";
 			ret += `现在被谁引用(sticky):\t${refDetails}\r\n`;
 
 			let error: Error = this.disposeError;
@@ -132,11 +132,30 @@ module riggerIOC {
 			return ret;
 		}
 
-
 		/**
-		 * 曾经被哪些对象注入过
+		 * 生成引用链信息
 		 */
-		// public children: any[] = [];
+		// private makeDepLinksStr(stickOwners: [InjectionTrack, InjectionTrackOwnerShip][]): string {
+		// 	let len: number = stickOwners.length;
+		// 	if (len <= 0) return "";
+		// 	let ret: string = "";
+		// 	for (var i: number = 0; i < len; ++i) {
+		// 		let single: string = this.makeSingleDepLinkStr(stickOwners[i]);
+		// 		if(single){
+		// 			single += this.makeDepLinksStr(stickOwners[i][0].stickyOwners);
+		// 		}
+		// 		else{
+					
+		// 		}
+		// 	}
+
+		// }
+
+		// private makeSingleDepLinkStr(stickyOwner: [InjectionTrack, InjectionTrackOwnerShip]): string {
+		// 	if(stickyOwner[1].refNum <= 0) return null;
+		// 	let ret:string = `(${stickyOwner[1].refNum}):${stickyOwner[1].injectionName} => `;
+		// 	this.makeDepLinksStr(stickyOwner[0].stickyOwners);
+		// }
 	}
 
 	/**
@@ -311,14 +330,14 @@ module riggerIOC {
 	export function getDisposeError(obj: any): Error {
 		if (!obj) return null;
 		let track: InjectionTrack = riggerIOC.getInjectionTrack(obj);
-		if(!track) return null;
+		if (!track) return null;
 		return track.disposeError;
 	}
 
 	export function setDisposeError(obj, error: Error): void {
 		if (!obj) return;
 		let track: InjectionTrack = riggerIOC.getInjectionTrack(obj);
-		if(!track) track = riggerIOC.insertInjectionTrack(obj, false);
+		if (!track) track = riggerIOC.insertInjectionTrack(obj, false);
 		track.disposeError = error
 	}
 
