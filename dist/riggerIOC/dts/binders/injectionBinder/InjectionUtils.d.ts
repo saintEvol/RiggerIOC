@@ -43,9 +43,17 @@ declare module riggerIOC {
          */
         ownershipStates: InjectionTrackOwnerShip[];
         /**
+         * 注入错误
+         */
+        injectError: Error;
+        /**
          * 析构错误
          */
         disposeError: Error;
+        /**
+         * 是否已经被析构
+         */
+        disposeFlag: boolean;
         /**
          * 所有仍然粘住未释放的所有者(仍然引用本对象的所有者)
          *
@@ -67,6 +75,14 @@ declare module riggerIOC {
     function getInjectionTrackPool(obj: any): InjectionTrack[];
     function setAppId(obj: any, appId: string | number): void;
     function getAppId(obj: any): string | number;
+    /**
+     *
+     * @param obj
+     * @param attrName
+     * @param owner
+     * @param acc
+     * @param ifInjected
+     */
     function addOwnerShip(obj: any, attrName: string, owner: any, acc?: number, ifInjected?: boolean): void;
     /**
      * 类装饰器，使类可以自动释放
@@ -89,6 +105,17 @@ declare module riggerIOC {
     function hackDisposeDebug(disposeFun: Function): () => void;
     function getDisposeError(obj: any): Error;
     function setDisposeError(obj: any, error: Error): void;
+    /**
+     * 获取该对象是否已经被析构过
+     * @param obj
+     */
+    function getDisposeFlag(obj: any): boolean;
+    /**
+     * 设置析构标记
+     * @param obj
+     * @param flag
+     */
+    function setDisposeFlag(obj: any, flag?: boolean): void;
     /**
      * 注入装饰器
      * @param ctr
