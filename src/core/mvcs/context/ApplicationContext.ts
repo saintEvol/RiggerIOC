@@ -281,6 +281,38 @@ module riggerIOC {
 		}
 
 		/**
+		 * 分析
+		 */
+		public analyze(): string {
+			// 未释放的
+			let stickyInsts = this.stickyInsts;
+			let ret = "======= 尚未释放的对象 ======\r\n"
+			for (var i: number = 0; i < stickyInsts.length; ++i) {
+				ret += stickyInsts[i].toString() + "\r\n";
+			}
+
+			ret += "======= 注入时发生了错误的对象 ======\r\n"
+			let errorInsts = this.injectErrorInsts;
+			if (errorInsts.length > 0) {
+				for (var i: number = 0; i < errorInsts.length; ++i) {
+					ret += errorInsts[i].toString() + "\r\n";
+				}
+			}
+			else{
+				ret += "\r\n"
+			}
+
+
+			ret += "====== 析构时发生错误的对象 =====\r\n"
+			errorInsts = this.disposeErrorInsts;
+			for (var j: number = 0; j < errorInsts.length; ++j) {
+				ret += errorInsts[j].toString() + "\r\n";
+			}
+
+			return ret;
+		}
+
+		/**
 		 * 获取未释放的追踪信息
 		 */
 		public get stickyInsts(): InjectionTrack[] {
@@ -298,9 +330,26 @@ module riggerIOC {
 		}
 
 		/**
-		 * 有错误的实例
+		 * 注入发生错误的实例
 		 */
-		public get errorInsts(): InjectionTrack[] {
+		public get injectErrorInsts(): InjectionTrack[] {
+			let ret: InjectionTrack[] = [];
+			let total: InjectionTrack[] = this.injectionTracks.concat(ApplicationContext.globalInjectionTracks);
+			for (var i: number = 0; i < total.length; ++i) {
+				let tempTrack: InjectionTrack = total[i];
+				let error: Error = tempTrack.injectError
+				if (error) {
+					ret.push(tempTrack);
+				}
+			}
+
+			return ret;
+		}
+
+		/**
+		 * 析构发生错误的实例
+		 */
+		public get disposeErrorInsts(): InjectionTrack[] {
 			let ret: InjectionTrack[] = [];
 			let total: InjectionTrack[] = this.injectionTracks.concat(ApplicationContext.globalInjectionTracks);
 			for (var i: number = 0; i < total.length; ++i) {

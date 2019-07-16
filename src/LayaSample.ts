@@ -21,14 +21,12 @@ class GameMain {
 
 
         while (true) {
-            for (var i: number = 0; i < tracks.length; ++i) {
-                console.log(`${tracks[i]}`);
-            }
+            // for (var i: number = 0; i < tracks.length; ++i) {
+            //     console.log(`${tracks[i]}`);
+            // }
 
-            let errorTracks = app.analyser.errorInsts;
-            for (var i: number = 0; i < errorTracks.length; ++i) {
-                console.log(`${errorTracks[i]}`);
-            }
+            let str = app.analyser.analyze();
+            console.log(str);
             await riggerIOC.waitForSeconds(2000);
         }
         // console.log(`[time:${Laya.Browser.now()}]stop app finished`)

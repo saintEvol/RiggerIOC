@@ -74,12 +74,20 @@ declare module riggerIOC {
         injectionTracks: InjectionTrack[];
         constructor(app: ApplicationContext);
         /**
+         * 分析
+         */
+        analyze(): string;
+        /**
          * 获取未释放的追踪信息
          */
         readonly stickyInsts: InjectionTrack[];
         /**
-         * 有错误的实例
+         * 注入发生错误的实例
          */
-        readonly errorInsts: InjectionTrack[];
+        readonly injectErrorInsts: InjectionTrack[];
+        /**
+         * 析构发生错误的实例
+         */
+        readonly disposeErrorInsts: InjectionTrack[];
     }
 }

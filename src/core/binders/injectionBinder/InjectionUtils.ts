@@ -135,8 +135,9 @@ module riggerIOC {
 			}
 			if (refDetails.length <= 0) refDetails = "无";
 			ret += `现在被谁引用(sticky):\t${refDetails}\r\n`;
-
-			let error: Error = this.disposeError;
+			let error: Error = this.injectError;
+			ret += `注入错误: \t\t${error ? error.stack : "无"}\r\n`;
+			error = this.disposeError;
 			ret += `析构错误: \t\t${error ? error.stack : "无"}`;
 
 			return ret;
@@ -258,7 +259,7 @@ module riggerIOC {
 		}
 
 		let ownerTrack: InjectionTrack = owners[idx];
-		if(ownerTrack.disposeFlag){
+		if (ownerTrack.disposeFlag && acc > 0) {
 			throw new Error(`owner has been disposed, owner:${ownerTrack.typeName}, field:${attrName}, obj:${track.typeName}`)
 		}
 
@@ -516,29 +517,30 @@ module riggerIOC {
 			return v;
 		};
 		descripter.set = function (v) {
-			try {
-				// 先将新值引用计数+1
-				// 如果先减旧值计数，可能触发其析构
-				if (v) {
-					// 更新新值的追踪信息
+			// 先将新值引用计数+1
+			// 如果先减旧值计数，可能触发其析构
+			if (v) {
+				// 更新新值的追踪信息
+				try {
 					riggerIOC.addOwnerShip(v, attrName, this);
-					addRefCount(v);
+				} catch (error) {
+					// 发生了注入错误
+					let track: InjectionTrack = riggerIOC.insertInjectionTrack(this, false);
+					track.injectError = error;
 				}
-
-				// 再将原来的值的引用计数-1
-				let oldV = this[k];
-				if (oldV) {
-					addRefCount(oldV, -1);
-					// 更新旧值追踪信息
-					riggerIOC.addOwnerShip(oldV, attrName, this, -1);
-				}
-
-				this[k] = v;
-			} catch (error) {
-				// 发生了注入错误
-				let track: InjectionTrack = riggerIOC.insertInjectionTrack(this, false);
-				track.injectError = error;
+				addRefCount(v);
 			}
+
+
+			// 再将原来的值的引用计数-1
+			let oldV = this[k];
+			if (oldV) {
+				addRefCount(oldV, -1);
+				// 更新旧值追踪信息
+				riggerIOC.addOwnerShip(oldV, attrName, this, -1);
+			}
+
+			this[k] = v;
 		}
 	}
 
@@ -605,30 +607,30 @@ module riggerIOC {
 				return v;
 			},
 			set: function (v) {
-				try {
-					// 先将新值引用计数+1
-					// 如果先减旧值计数，可能触发其析构
-					if (v) {
-						// 更新新值的追踪信息
+				// 先将新值引用计数+1
+				// 如果先减旧值计数，可能触发其析构
+				if (v) {
+					// 更新新值的追踪信息
+					try {
 						riggerIOC.addOwnerShip(v, attrName, this);
-						addRefCount(v);
+					} catch (error) {
+						// 发生了注入错误
+						let track: InjectionTrack = riggerIOC.insertInjectionTrack(this, false);
+						track.injectError = error;
 					}
-
-					// 再将原来的值的引用计数-1
-					let oldV = this[k];
-					if (oldV) {
-						addRefCount(oldV, -1);
-						// 更新旧值追踪信息
-						riggerIOC.addOwnerShip(oldV, attrName, this, -1);
-					}
-
-					this[k] = v;
-				} catch (error) {
-					// 发生了注入错误
-					let track: InjectionTrack = riggerIOC.insertInjectionTrack(this, false);
-					track.injectError = error;
+					addRefCount(v);
 				}
 
+
+				// 再将原来的值的引用计数-1
+				let oldV = this[k];
+				if (oldV) {
+					addRefCount(oldV, -1);
+					// 更新旧值追踪信息
+					riggerIOC.addOwnerShip(oldV, attrName, this, -1);
+				}
+
+				this[k] = v;
 			},
 			enumerable: true,
 			configurable: true
