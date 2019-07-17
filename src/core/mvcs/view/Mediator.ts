@@ -24,12 +24,5 @@ module riggerIOC{
 		abstract onShow():void;
 		abstract onHide():void;
 		abstract onDispose():void;
-
-		/**
-		 * 析构函数，此函数供框架使用，请勿手动调动和覆盖
-		 */
-		dispose():void{
-
-		}
 	}
 }
