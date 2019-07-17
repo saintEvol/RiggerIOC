@@ -342,7 +342,7 @@ module riggerIOC {
 					let thisTrack: InjectionTrack = riggerIOC.getInjectionTrack(this);
 					throw new Error(`has been disposed:${thisTrack.typeName}`);
 				}
-				riggerIOC.setDisposeFlag(this);
+
 				disposeFun && disposeFun.apply(this);
 				let injections: string[] = InjectionBinder.instance.getRegisteredInjection(this);
 				if (injections && injections.length > 0) {
@@ -351,6 +351,8 @@ module riggerIOC {
 						this[injections[i]] = null;
 					}
 				}
+				
+				riggerIOC.setDisposeFlag(this);
 			} catch (error) {
 				setDisposeError(this, error);
 			}
