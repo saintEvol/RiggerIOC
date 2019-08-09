@@ -647,7 +647,7 @@ module riggerIOC {
 		riggerIOC.setInjectinBindInfoDebug();
 	}
 
-	if (riggerIOC.debug || (window && window["riggerIOC-debug"])) {
+	if (riggerIOC.debug || (window && (window["riggerIOC-debug"] || window["CC_DEBUG"]))) {
 		riggerIOC.setDebug();
 	}
 }

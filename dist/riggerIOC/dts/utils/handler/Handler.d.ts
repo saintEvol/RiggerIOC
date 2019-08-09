@@ -45,6 +45,9 @@ declare module riggerIOC {
          */
         run(): any;
         /**
+         *
+         */
+        /**
          * 带参执行
          * @param args
          */

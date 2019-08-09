@@ -22,6 +22,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-sequence": "^1.0.0",
     "gulp-typescript": "^4.0.1",
+    "gulp-uglify": "^3.0.2",
     "merge-stream": "^1.0.1",
     "require-dir": "^1.0.0",
     "silly-datetime": "^0.1.2",

@@ -26,7 +26,7 @@ module riggerIOC {
 		}
 
 		/**
-		 * 派发信号
+		 * 派发信号, 派发信号时附带的参数将被追加到监听函数的参数列表最末尾
 		 * @param arg 
 		 */
 		dispatch(arg?: T) {
@@ -41,7 +41,7 @@ module riggerIOC {
 		 * @param method 
 		 * @param args 
 		 */
-		on(caller: any, method: (arg: T, args?: any[]) => any, args?: any[], recoverBefore: boolean = true) {
+		on(caller: any, method: (...args: (any | T)[]) => any, args?: any[], recoverBefore: boolean = true) {
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, false, recoverBefore);
 		}
@@ -52,7 +52,7 @@ module riggerIOC {
 		 * @param method 
 		 * @param args 
 		 */
-		once(caller: any, method: (arg: T, args?: any[]) => any, args?: any[], recoverBefore: boolean = true) {
+		once(caller: any, method: (...args: (any | T)[]) => any, args?: any[], recoverBefore: boolean = true) {
 			this.makeSureListenerManager();
 			this.listenerMgr.on(caller, method, args, true);
 		}
@@ -62,7 +62,7 @@ module riggerIOC {
 		 * @param caller 
 		 * @param method 
 		 */
-		off(caller: any, method: (arg: T, args?: any[]) => any) {
+		off(caller: any, method: (...args: (any | T)[]) => any) {
 			if (this.listenerMgr) this.listenerMgr.off(caller, method);
 		}
 

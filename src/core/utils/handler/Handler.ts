@@ -127,6 +127,10 @@ module riggerIOC {
 		}
 
 		/**
+		 * 
+		 */
+		// reverseExtraParams:boolean = false;
+		/**
 		 * 带参执行
 		 * @param args 
 		 */
