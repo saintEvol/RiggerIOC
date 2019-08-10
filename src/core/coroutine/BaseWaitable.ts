@@ -156,12 +156,15 @@ module riggerIOC {
 		 * 重置，使得可以再次使用
 		 */
 		reset(): BaseWaitable {
+			this.cancel("reset");
+			
 			this.mIsCanceled = false;
 			this.mIsDone = false;
 			this.mResult = null;
 			this.mReason = null;
 			this.mCanceledCallback = null;
 			this.mDoneCallback = null;
+			this.waitingTask = null;
 
 			return this;
 		}
