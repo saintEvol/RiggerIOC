@@ -154,9 +154,10 @@ module riggerIOC {
 
 		/**
 		 * 重置，使得可以再次使用
+		 * 如果正在等待，则重置无效，需要先手动打断
 		 */
 		reset(): BaseWaitable {
-			this.cancel("reset");
+			if(this.isWaitting()) return this;
 			
 			this.mIsCanceled = false;
 			this.mIsDone = false;

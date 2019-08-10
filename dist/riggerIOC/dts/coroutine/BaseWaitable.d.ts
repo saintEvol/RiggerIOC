@@ -50,6 +50,7 @@ declare module riggerIOC {
         cancel(reason?: any): void;
         /**
          * 重置，使得可以再次使用
+         * 如果正在等待，则重置无效，需要先手动打断
          */
         reset(): BaseWaitable;
         /**
