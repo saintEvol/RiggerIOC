@@ -33,21 +33,45 @@ module riggerIOC {
 		}
 
 		private bindedMap: { [bindId: string]: InjectionBindInfo } = {};
+		private stringBindedMap: { [bindId: string]: InjectionBindInfo } = {};
 		/**
-		 * 绑定一个类,类不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
+		 * 绑定一个类或字符串,不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
 		 *
-		 * @param ctr 要绑定类的构造函数,推荐绑定抽象类
+		 * @param ctrOrStr 要绑定类的构造函数,推荐绑定抽象类
 		 * @return 返回对应的绑定信息 
 		 */
-		public bind(cls: any): InjectionBindInfo {
+		public bind(ctrOrStr: Function | string): InjectionBindInfo {
+			if(Utils.isString(ctrOrStr)){
+				return this.bindString(ctrOrStr);
+			}
+			else {
+				return this.bindClass(ctrOrStr);
+			}
+		}
+
+		public bindClass(cls: Function): InjectionBindInfo {
 			// console.log("bind");
 			if (!cls) return null;
 			// 查找是否已经有绑定过了
-			let info: InjectionBindInfo = this.findBindInfo(cls);
+			let info: InjectionBindInfo = this.findClassBindInfo(cls);
 			if (!info) {
 				let id: number | string = InjectionWrapper.wrap(cls);
 				info = new InjectionBindInfo(cls);
 				this.bindedMap[id] = info;
+			}
+
+			return info;
+		}
+
+		/**
+		 * 对字符串进行绑定
+		 * @param str 
+		 */
+		public bindString(str: string): InjectionBindInfo {
+			if (!str) return null;
+			let info: InjectionBindInfo = this.findStringBindInfo(str);
+			if(!info) {
+				this.stringBindedMap[str] = info = new InjectionBindInfo(str, BindInfoKeyType.STRING);
 			}
 
 			return info;
@@ -60,8 +84,8 @@ module riggerIOC {
 			arr.push(attName);
 		}
 
-		public getRegisteredInjection(target:any): string[]{
-			if(!target) return []
+		public getRegisteredInjection(target: any): string[] {
+			if (!target) return []
 			return target[this.registerKey] || [];
 		}
 
@@ -81,18 +105,37 @@ module riggerIOC {
 
 		/**
 		 * 解绑
-		 * @param cls 
+		 * @param ctrOrStr 
 		 */
-		public unbind(cls: any): void {
-			// console.log("unbind");
-			this.disposeBindInfo(cls);
+		public unbind(ctrOrStr: any): void {
+			if(Utils.isString(ctrOrStr)) {
+				this.unbindString(ctrOrStr);
+			}
+			else {
+				this.unbindClass(ctrOrStr);
+			}
+		}
+
+		public unbindString(str: string): void{
+			this.disposeStringBindInfo(str);
+		}
+
+		public unbindClass(ctr: Function): void {
+			this.disposeClassBindInfo(ctr);
 		}
 
 		/**
 		 * 从绑定列表中找到指定的绑定信息
-		 * @param ctr 指定的构造函数，是绑定信息的键
+		 * @param ctrOrStr 指定的构造函数或字符串，是绑定信息的键
 		 */
-		public findBindInfo(ctr: Function): InjectionBindInfo {
+		public findBindInfo(ctrOrStr: string | Function): InjectionBindInfo {
+			if(Utils.isString(ctrOrStr)){
+				return this.findStringBindInfo(ctrOrStr)
+			}
+			return this.findClassBindInfo(ctrOrStr);
+		}
+
+		public findClassBindInfo(ctr: Function): InjectionBindInfo {
 			if (!ctr) return null;
 			if (!this.bindedMap) return null;
 			let id: number | string = InjectionWrapper.getId(ctr);
@@ -100,11 +143,26 @@ module riggerIOC {
 			return this.bindedMap[id];
 		}
 
-		// protected getBindId(cls: any): number {
-		// 	return cls[InjectionBinder.BIND_ID_KEY];
-		// }
+		/**
+		 * 查找给定字符串的绑定信息
+		 * @param str 
+		 */
+		public findStringBindInfo(str: string): InjectionBindInfo {
+			if (!str) return null;
+			if (!this.stringBindedMap) return null;
+			return this.stringBindedMap[str];
+		}
 
-		private disposeBindInfo(cls: any): void {
+		private disposeBindInfo(clsOrStr: Function | string): void {
+			if(Utils.isString(clsOrStr)) {
+				this.disposeStringBindInfo(clsOrStr);
+			}
+			else {
+				this.disposeClassBindInfo(clsOrStr);
+			}
+		}
+
+		private disposeClassBindInfo(cls: Function):void{
 			if (!cls) return;
 			let id: number | string = InjectionWrapper.getId(cls);
 			if (!id) return;
@@ -112,6 +170,16 @@ module riggerIOC {
 			if (info) {
 				info.dispose();
 				delete this.bindedMap[id];
+			}
+			info = null;
+		}
+
+		private disposeStringBindInfo(str: string): void{
+			if (!str) return;
+			let info: InjectionBindInfo = this.stringBindedMap[str];
+			if(info) {
+				info.dispose();
+				delete this.stringBindedMap[str];
 			}
 			info = null;
 		}

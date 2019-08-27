@@ -1,10 +1,15 @@
 declare module riggerIOC {
+    enum BindInfoKeyType {
+        CONSTRUCTOR = 1,
+        STRING = 2
+    }
     class InjectionBindInfo {
         appId: string | number;
-        cls: any;
+        cls: Function | string;
         readonly realClass: any;
         private mBindCls;
         private isSingleton;
+        private keyType;
         /**
          * 实例，只有当为单例模式时才会给此字段赋值
          */
@@ -14,7 +19,7 @@ declare module riggerIOC {
          * 是否注入类的实例
          */
         readonly hasInstance: boolean;
-        constructor(ctr: Function);
+        constructor(ctr: Function | string, keyType?: BindInfoKeyType);
         dispose(): void;
         /**
          * 绑定到目标类

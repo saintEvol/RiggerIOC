@@ -227,6 +227,14 @@ module riggerIOC {
 		return obj["debug_app_id"];
 	}
 
+	// function setGlobalTrackPoolFlag(obj: any, ifIn: boolean = true): void {
+	// 	obj["debug_track_global"] = ifIn;
+	// }
+
+	// function getGlobalTrackPoolFlag(obj: any): boolean {
+	// 	return obj["debug_track_global"];
+	// }
+
 	/**
 	 * 
 	 * @param obj 
@@ -399,7 +407,7 @@ module riggerIOC {
 	 * 注入装饰器
 	 * @param ctr 
 	 */
-	export function inject(ctr: any) {
+	export function inject(ctr: Function | string) {
 		return function (target: any, attrName: string, descripter?: any) {
 			// console.log(`in inject, attr:${attrName}, ctr:${ctr}`);
 			if (descripter) {
@@ -552,7 +560,7 @@ module riggerIOC {
 	 * @param target 原型对象
 	 * @param attrName 属性名
 	 */
-	export function doInjectAttr(key: any, target: any, attrName: string) {
+	export function doInjectAttr(key: Function | string, target: any, attrName: string) {
 		let k: string = injectionAttrKey + attrName;
 		// 注册需要注入的属性名/存取器器名
 		InjectionBinder.instance.registerInjection(target, attrName);
@@ -644,6 +652,7 @@ module riggerIOC {
 		riggerIOC.hackDispose = riggerIOC.hackDisposeDebug;
 		riggerIOC.doInjectAttr = doInjectAttrDebug;
 		riggerIOC.doInjectGetterSetter = doInjectGetterSetterDebug;
+		riggerIOC.setApplicationInjectionBinderDebug();
 		riggerIOC.setInjectinBindInfoDebug();
 	}
 

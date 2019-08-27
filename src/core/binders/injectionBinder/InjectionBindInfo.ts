@@ -14,15 +14,22 @@
  *		limitations under the License.
  */
 module riggerIOC {
+	export enum BindInfoKeyType {
+		CONSTRUCTOR = 1,
+		STRING = 2
+	}
+
 	export class InjectionBindInfo {
 		public appId: string | number = null;
-		public cls: any = null;
+		public cls: Function | string = null;
 		public get realClass(): any {
 			if (this.mBindCls) return this.mBindCls;
+			if (this.keyType == BindInfoKeyType.STRING) return null;
 			return this.cls;
 		}
 		private mBindCls: any = null;
 		private isSingleton: boolean = false;
+		private keyType: BindInfoKeyType;
 		// private isAutoDispose: boolean = false;
 
 		/**
@@ -54,8 +61,9 @@ module riggerIOC {
 			return !!this.instance;
 		}
 
-		constructor(ctr: Function) {
+		constructor(ctr: Function | string, keyType: BindInfoKeyType = BindInfoKeyType.CONSTRUCTOR) {
 			this.cls = ctr;
+			this.keyType = keyType;
 		}
 
 		public dispose() {
@@ -106,12 +114,16 @@ module riggerIOC {
 		public getInstance<T>(): T {
 			if (this.isToValue) return this.instance;
 			if (this.instance) return this.instance;
-			let inst: T = new (this.realClass)();
+			let rc = this.realClass;
+			if (rc) {
+				let inst: T = new (this.realClass)();
 
-			if (this.isSingleton) {
-				this.instance = inst;
+				if (this.isSingleton) {
+					this.instance = inst;
+				}
+				return inst;
 			}
-			return inst;
+			return null;
 		}
 
 		/**
@@ -120,17 +132,36 @@ module riggerIOC {
 		public getInstanceDebug<T>(): T {
 			if (this.isToValue) return this.instance;
 			if (this.instance) return this.instance;
-			let inst: T = new (this.realClass)();
+			let rc = this.realClass;
+			if (rc) {
+				// 给对象的原型链写入appID信息，防止构造过程中因为引用了注入类型导致自己被加入全局追踪池
+				let pt = rc["prototype"];
+				let old;
+				if (pt) {
+					old = riggerIOC.getAppId(pt);
+					riggerIOC.setAppId(pt, this.appId);
+				}
+				let inst: T = new (this.realClass)();
 
-			// 插入追踪信息
-			riggerIOC.setAppId(inst, this.appId);
-			riggerIOC.insertInjectionTrack(inst);
+				// 还原
+				if (pt) {
+					riggerIOC.setAppId(pt, old);
+				}
 
-			if (this.isSingleton) {
-				this.instance = inst;
+				// 插入追踪信息
+				riggerIOC.setAppId(inst, this.appId);
+				riggerIOC.insertInjectionTrack(inst);
+
+				if (this.isSingleton) {
+					this.instance = inst;
+				}
+				
+				return inst;
 			}
-			return inst;
+
+			return null;
 		}
+
 
 		/**
 		 * 绑定到值，此时会自动进行单例绑定
@@ -159,5 +190,5 @@ module riggerIOC {
 		InjectionBindInfo.prototype.toValue = InjectionBindInfo.prototype.toValueDebug;
 		InjectionBindInfo.prototype.getInstance = InjectionBindInfo.prototype.getInstanceDebug;
 	}
-	
+
 }

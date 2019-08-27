@@ -174,11 +174,6 @@ module riggerIOC {
 
 			for (var i: number = this.modules.length - 1; i >= 0; --i) {
 				this.injectionBinder.unbind(this.modules[i]);
-				// let inst: ModuleContext = this.modulesInstance[i];
-				// 实例可能比类型少
-				// if(inst){
-				// 	await inst.dispose();
-				// }
 			}
 
 			// this.injectionBinder = null;

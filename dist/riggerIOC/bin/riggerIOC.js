@@ -1,9 +1,3 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -17,6 +11,12 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -67,10 +67,353 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+/**
+ * 注入绑定器类
+ */
 var riggerIOC;
 (function (riggerIOC) {
+    var InjectionBinder = /** @class */ (function () {
+        function InjectionBinder() {
+            this.bindedMap = {};
+            this.stringBindedMap = {};
+            this.registerKey = "_register_key";
+        }
+        Object.defineProperty(InjectionBinder, "instance", {
+            // private nowBindId: number = 1;
+            get: function () {
+                if (!InjectionBinder.mInstance) {
+                    InjectionBinder.mInstance = new InjectionBinder();
+                }
+                return InjectionBinder.mInstance;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * 绑定一个类或字符串,不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
+         *
+         * @param ctrOrStr 要绑定类的构造函数,推荐绑定抽象类
+         * @return 返回对应的绑定信息
+         */
+        InjectionBinder.prototype.bind = function (ctrOrStr) {
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                return this.bindString(ctrOrStr);
+            }
+            else {
+                return this.bindClass(ctrOrStr);
+            }
+        };
+        InjectionBinder.prototype.bindClass = function (cls) {
+            // console.log("bind");
+            if (!cls)
+                return null;
+            // 查找是否已经有绑定过了
+            var info = this.findClassBindInfo(cls);
+            if (!info) {
+                var id = riggerIOC.InjectionWrapper.wrap(cls);
+                info = new riggerIOC.InjectionBindInfo(cls);
+                this.bindedMap[id] = info;
+            }
+            return info;
+        };
+        /**
+         * 对字符串进行绑定
+         * @param str
+         */
+        InjectionBinder.prototype.bindString = function (str) {
+            if (!str)
+                return null;
+            var info = this.findStringBindInfo(str);
+            if (!info) {
+                this.stringBindedMap[str] = info = new riggerIOC.InjectionBindInfo(str, riggerIOC.BindInfoKeyType.STRING);
+            }
+            return info;
+        };
+        InjectionBinder.prototype.registerInjection = function (target, attName) {
+            var arr = target[this.registerKey];
+            if (!arr)
+                arr = target[this.registerKey] = [];
+            arr.push(attName);
+        };
+        InjectionBinder.prototype.getRegisteredInjection = function (target) {
+            if (!target)
+                return [];
+            return target[this.registerKey] || [];
+        };
+        /**
+         * 进行注入
+         * @param obj
+         */
+        InjectionBinder.prototype.inject = function (obj) {
+            var prototype = obj["__proto__"];
+            var arr = prototype[this.registerKey];
+            if (!arr || arr.length <= 0)
+                return;
+            var len = arr.length;
+            for (var i = 0; i < len; ++i) {
+                obj[arr[i]];
+            }
+        };
+        /**
+         * 解绑
+         * @param ctrOrStr
+         */
+        InjectionBinder.prototype.unbind = function (ctrOrStr) {
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                this.unbindString(ctrOrStr);
+            }
+            else {
+                this.unbindClass(ctrOrStr);
+            }
+        };
+        InjectionBinder.prototype.unbindString = function (str) {
+            this.disposeStringBindInfo(str);
+        };
+        InjectionBinder.prototype.unbindClass = function (ctr) {
+            this.disposeClassBindInfo(ctr);
+        };
+        /**
+         * 从绑定列表中找到指定的绑定信息
+         * @param ctrOrStr 指定的构造函数或字符串，是绑定信息的键
+         */
+        InjectionBinder.prototype.findBindInfo = function (ctrOrStr) {
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                return this.findStringBindInfo(ctrOrStr);
+            }
+            return this.findClassBindInfo(ctrOrStr);
+        };
+        InjectionBinder.prototype.findClassBindInfo = function (ctr) {
+            if (!ctr)
+                return null;
+            if (!this.bindedMap)
+                return null;
+            var id = riggerIOC.InjectionWrapper.getId(ctr);
+            if (!id)
+                return null;
+            return this.bindedMap[id];
+        };
+        /**
+         * 查找给定字符串的绑定信息
+         * @param str
+         */
+        InjectionBinder.prototype.findStringBindInfo = function (str) {
+            if (!str)
+                return null;
+            if (!this.stringBindedMap)
+                return null;
+            return this.stringBindedMap[str];
+        };
+        InjectionBinder.prototype.disposeBindInfo = function (clsOrStr) {
+            if (riggerIOC.Utils.isString(clsOrStr)) {
+                this.disposeStringBindInfo(clsOrStr);
+            }
+            else {
+                this.disposeClassBindInfo(clsOrStr);
+            }
+        };
+        InjectionBinder.prototype.disposeClassBindInfo = function (cls) {
+            if (!cls)
+                return;
+            var id = riggerIOC.InjectionWrapper.getId(cls);
+            if (!id)
+                return;
+            var info = this.bindedMap[id];
+            if (info) {
+                info.dispose();
+                delete this.bindedMap[id];
+            }
+            info = null;
+        };
+        InjectionBinder.prototype.disposeStringBindInfo = function (str) {
+            if (!str)
+                return;
+            var info = this.stringBindedMap[str];
+            if (info) {
+                info.dispose();
+                delete this.stringBindedMap[str];
+            }
+            info = null;
+        };
+        return InjectionBinder;
+    }());
+    riggerIOC.InjectionBinder = InjectionBinder;
+})(riggerIOC || (riggerIOC = {}));
+var riggerIOC;
+(function (riggerIOC) {
+    var ApplicationInjectionBinder = /** @class */ (function (_super) {
+        __extends(ApplicationInjectionBinder, _super);
+        function ApplicationInjectionBinder(appId, injectionBinder, owner) {
+            var _this = _super.call(this) || this;
+            _this.infos = {};
+            _this.stringBindInfos = {};
+            _this.appId = appId;
+            _this.owner = owner;
+            if (injectionBinder instanceof ApplicationInjectionBinder) {
+                _this.injectionBinder = injectionBinder.injectionBinder;
+            }
+            else {
+                _this.injectionBinder = injectionBinder;
+            }
+            return _this;
+        }
+        ApplicationInjectionBinder.prototype.bind = function (ctrOrStr) {
+            var info;
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                info = this.injectionBinder.bindString(ctrOrStr);
+                this.addStringBindInfo(ctrOrStr, info);
+            }
+            else {
+                info = this.injectionBinder.bindClass(ctrOrStr);
+                this.addClassBindInfo(ctrOrStr, info);
+            }
+            return info;
+        };
+        /**
+         * debug 版
+         * @param ctrOrStr
+         */
+        ApplicationInjectionBinder.prototype.bindDebug = function (ctrOrStr) {
+            var info;
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                info = this.injectionBinder.bindString(ctrOrStr);
+                this.addStringBindInfo(ctrOrStr, info);
+            }
+            else {
+                info = this.injectionBinder.bindClass(ctrOrStr);
+                this.addClassBindInfo(ctrOrStr, info);
+            }
+            info.appId = this.appId;
+            return info;
+        };
+        /**
+         * 注册注入
+         * @param target
+         * @param attName
+         */
+        ApplicationInjectionBinder.prototype.registerInjection = function (target, attName) {
+            this.injectionBinder.registerInjection(target, attName);
+        };
+        /**
+         * 进行注入
+         * @param obj
+         */
+        ApplicationInjectionBinder.prototype.inject = function (obj) {
+            this.injectionBinder.inject(obj);
+        };
+        /**
+         * 解绑
+         * @param ctrOrStr
+         */
+        ApplicationInjectionBinder.prototype.unbind = function (ctrOrStr) {
+            if (riggerIOC.Utils.isString(ctrOrStr)) {
+                this.unbindString(ctrOrStr);
+            }
+            else {
+                this.unbindClass(ctrOrStr);
+            }
+        };
+        ApplicationInjectionBinder.prototype.unbindClass = function (ctr) {
+            this.removeClassBindInfo(ctr);
+            this.injectionBinder.unbindClass(ctr);
+        };
+        ApplicationInjectionBinder.prototype.unbindString = function (str) {
+            this.removeStringBindInfo(str);
+            this.injectionBinder.unbindString(str);
+        };
+        /**
+         * 从绑定列表中找到指定的绑定信息
+         * @param ctrOrStr 指定的构造函数或字符串，是绑定信息的键
+         */
+        ApplicationInjectionBinder.prototype.findBindInfo = function (ctrOrStr) {
+            return this.injectionBinder.findBindInfo(ctrOrStr);
+        };
+        ApplicationInjectionBinder.prototype.dispose = function () {
+            for (var k in this.infos) {
+                this.unbindClass(this.infos[k].cls);
+            }
+            for (var k in this.stringBindInfos) {
+                this.unbindString(this.stringBindInfos[k].cls);
+            }
+            this.infos = {};
+            this.stringBindInfos = {};
+            this.injectionBinder = null;
+            this.owner = null;
+        };
+        /**
+         * 增加绑定信息
+         * @param ctrOrStr
+         * @param info
+         */
+        // private addBindInfo(ctrOrStr: Function | string, info: InjectionBindInfo): void {
+        // 	if (Utils.isString(ctrOrStr)) {
+        // 		this.addStringBindInfo(ctrOrStr, info);
+        // 	}
+        // 	else {
+        // 		this.addClassBindInfo(ctrOrStr, info);
+        // 	}
+        // }
+        ApplicationInjectionBinder.prototype.addStringBindInfo = function (str, info) {
+            if (!this.stringBindInfos)
+                this.stringBindInfos = {};
+            this.stringBindInfos[str] = info;
+        };
+        ApplicationInjectionBinder.prototype.addClassBindInfo = function (ctr, info) {
+            if (!this.infos)
+                this.infos = {};
+            var bindId = riggerIOC.InjectionWrapper.getId(ctr);
+            this.infos[bindId] = info;
+        };
+        /**
+         * 移除绑定信息
+         * @param ctrOrStr
+         */
+        // private removeBindInfo(ctrOrStr: Function | string): void {
+        // 	if (Utils.isString(ctrOrStr)) {
+        // 		this.removeStringBindInfo(ctrOrStr);
+        // 	}
+        // 	else {
+        // 		this.removeClassBindInfo(ctrOrStr);
+        // 	}
+        // }
+        ApplicationInjectionBinder.prototype.removeStringBindInfo = function (str) {
+            delete this.stringBindInfos[str];
+        };
+        ApplicationInjectionBinder.prototype.removeClassBindInfo = function (ctr) {
+            delete this.infos[riggerIOC.InjectionWrapper.getId(ctr)];
+        };
+        return ApplicationInjectionBinder;
+    }(riggerIOC.InjectionBinder));
+    riggerIOC.ApplicationInjectionBinder = ApplicationInjectionBinder;
+    function setApplicationInjectionBinderDebug() {
+        ApplicationInjectionBinder.prototype.bind = ApplicationInjectionBinder.prototype.bindDebug;
+    }
+    riggerIOC.setApplicationInjectionBinderDebug = setApplicationInjectionBinderDebug;
+})(riggerIOC || (riggerIOC = {}));
+/*
+ * Copyright 2018 Yang Wu.
+ *
+ *	Licensed under the Apache License, Version 2.0 (the "License");
+ *	you may not use this file except in compliance with the License.
+ *	You may obtain a copy of the License at
+ *
+ *		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *		Unless required by applicable law or agreed to in writing, software
+ *		distributed under the License is distributed on an "AS IS" BASIS,
+ *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *		See the License for the specific language governing permissions and
+ *		limitations under the License.
+ */
+var riggerIOC;
+(function (riggerIOC) {
+    var BindInfoKeyType;
+    (function (BindInfoKeyType) {
+        BindInfoKeyType[BindInfoKeyType["CONSTRUCTOR"] = 1] = "CONSTRUCTOR";
+        BindInfoKeyType[BindInfoKeyType["STRING"] = 2] = "STRING";
+    })(BindInfoKeyType = riggerIOC.BindInfoKeyType || (riggerIOC.BindInfoKeyType = {}));
     var InjectionBindInfo = /** @class */ (function () {
-        function InjectionBindInfo(ctr) {
+        function InjectionBindInfo(ctr, keyType) {
+            if (keyType === void 0) { keyType = BindInfoKeyType.CONSTRUCTOR; }
             this.appId = null;
             this.cls = null;
             this.mBindCls = null;
@@ -78,11 +421,14 @@ var riggerIOC;
             this.mInstance = null;
             this.isToValue = false;
             this.cls = ctr;
+            this.keyType = keyType;
         }
         Object.defineProperty(InjectionBindInfo.prototype, "realClass", {
             get: function () {
                 if (this.mBindCls)
                     return this.mBindCls;
+                if (this.keyType == BindInfoKeyType.STRING)
+                    return null;
                 return this.cls;
             },
             enumerable: true,
@@ -166,11 +512,15 @@ var riggerIOC;
                 return this.instance;
             if (this.instance)
                 return this.instance;
-            var inst = new (this.realClass)();
-            if (this.isSingleton) {
-                this.instance = inst;
+            var rc = this.realClass;
+            if (rc) {
+                var inst = new (this.realClass)();
+                if (this.isSingleton) {
+                    this.instance = inst;
+                }
+                return inst;
             }
-            return inst;
+            return null;
         };
         /**
          * 获取实例(Debug版)
@@ -180,14 +530,29 @@ var riggerIOC;
                 return this.instance;
             if (this.instance)
                 return this.instance;
-            var inst = new (this.realClass)();
-            // 插入追踪信息
-            riggerIOC.setAppId(inst, this.appId);
-            riggerIOC.insertInjectionTrack(inst);
-            if (this.isSingleton) {
-                this.instance = inst;
+            var rc = this.realClass;
+            if (rc) {
+                // 给对象的原型链写入appID信息，防止构造过程中因为引用了注入类型导致自己被加入全局追踪池
+                var pt = rc["prototype"];
+                var old = void 0;
+                if (pt) {
+                    old = riggerIOC.getAppId(pt);
+                    riggerIOC.setAppId(pt, this.appId);
+                }
+                var inst = new (this.realClass)();
+                // 还原
+                if (pt) {
+                    riggerIOC.setAppId(pt, old);
+                }
+                // 插入追踪信息
+                riggerIOC.setAppId(inst, this.appId);
+                riggerIOC.insertInjectionTrack(inst);
+                if (this.isSingleton) {
+                    this.instance = inst;
+                }
+                return inst;
             }
-            return inst;
+            return null;
         };
         /**
          * 绑定到值，此时会自动进行单例绑定
@@ -215,128 +580,6 @@ var riggerIOC;
         InjectionBindInfo.prototype.getInstance = InjectionBindInfo.prototype.getInstanceDebug;
     }
     riggerIOC.setInjectinBindInfoDebug = setInjectinBindInfoDebug;
-})(riggerIOC || (riggerIOC = {}));
-/*
- * Copyright 2018 Yang Wu.
- *
- *	Licensed under the Apache License, Version 2.0 (the "License");
- *	you may not use this file except in compliance with the License.
- *	You may obtain a copy of the License at
- *
- *		http://www.apache.org/licenses/LICENSE-2.0
- *
- *		Unless required by applicable law or agreed to in writing, software
- *		distributed under the License is distributed on an "AS IS" BASIS,
- *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *		See the License for the specific language governing permissions and
- *		limitations under the License.
- */
-/**
- * 注入绑定器类
- */
-var riggerIOC;
-(function (riggerIOC) {
-    var InjectionBinder = /** @class */ (function () {
-        function InjectionBinder() {
-            this.bindedMap = {};
-            this.registerKey = "_register_key";
-        }
-        Object.defineProperty(InjectionBinder, "instance", {
-            // private nowBindId: number = 1;
-            get: function () {
-                if (!InjectionBinder.mInstance) {
-                    InjectionBinder.mInstance = new InjectionBinder();
-                }
-                return InjectionBinder.mInstance;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * 绑定一个类,类不会重复绑定，如果已经存在绑定信息，则仅仅返回原来的绑定信息
-         *
-         * @param ctr 要绑定类的构造函数,推荐绑定抽象类
-         * @return 返回对应的绑定信息
-         */
-        InjectionBinder.prototype.bind = function (cls) {
-            // console.log("bind");
-            if (!cls)
-                return null;
-            // 查找是否已经有绑定过了
-            var info = this.findBindInfo(cls);
-            if (!info) {
-                var id = riggerIOC.InjectionWrapper.wrap(cls);
-                info = new riggerIOC.InjectionBindInfo(cls);
-                this.bindedMap[id] = info;
-            }
-            return info;
-        };
-        InjectionBinder.prototype.registerInjection = function (target, attName) {
-            var arr = target[this.registerKey];
-            if (!arr)
-                arr = target[this.registerKey] = [];
-            arr.push(attName);
-        };
-        InjectionBinder.prototype.getRegisteredInjection = function (target) {
-            if (!target)
-                return [];
-            return target[this.registerKey] || [];
-        };
-        /**
-         * 进行注入
-         * @param obj
-         */
-        InjectionBinder.prototype.inject = function (obj) {
-            var prototype = obj["__proto__"];
-            var arr = prototype[this.registerKey];
-            if (!arr || arr.length <= 0)
-                return;
-            var len = arr.length;
-            for (var i = 0; i < len; ++i) {
-                obj[arr[i]];
-            }
-        };
-        /**
-         * 解绑
-         * @param cls
-         */
-        InjectionBinder.prototype.unbind = function (cls) {
-            // console.log("unbind");
-            this.disposeBindInfo(cls);
-        };
-        /**
-         * 从绑定列表中找到指定的绑定信息
-         * @param ctr 指定的构造函数，是绑定信息的键
-         */
-        InjectionBinder.prototype.findBindInfo = function (ctr) {
-            if (!ctr)
-                return null;
-            if (!this.bindedMap)
-                return null;
-            var id = riggerIOC.InjectionWrapper.getId(ctr);
-            if (!id)
-                return null;
-            return this.bindedMap[id];
-        };
-        // protected getBindId(cls: any): number {
-        // 	return cls[InjectionBinder.BIND_ID_KEY];
-        // }
-        InjectionBinder.prototype.disposeBindInfo = function (cls) {
-            if (!cls)
-                return;
-            var id = riggerIOC.InjectionWrapper.getId(cls);
-            if (!id)
-                return;
-            var info = this.bindedMap[id];
-            if (info) {
-                info.dispose();
-                delete this.bindedMap[id];
-            }
-            info = null;
-        };
-        return InjectionBinder;
-    }());
-    riggerIOC.InjectionBinder = InjectionBinder;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -533,6 +776,12 @@ var riggerIOC;
         return obj["debug_app_id"];
     }
     riggerIOC.getAppId = getAppId;
+    // function setGlobalTrackPoolFlag(obj: any, ifIn: boolean = true): void {
+    // 	obj["debug_track_global"] = ifIn;
+    // }
+    // function getGlobalTrackPoolFlag(obj: any): boolean {
+    // 	return obj["debug_track_global"];
+    // }
     /**
      *
      * @param obj
@@ -935,6 +1184,7 @@ var riggerIOC;
         riggerIOC.hackDispose = riggerIOC.hackDisposeDebug;
         riggerIOC.doInjectAttr = doInjectAttrDebug;
         riggerIOC.doInjectGetterSetter = doInjectGetterSetterDebug;
+        riggerIOC.setApplicationInjectionBinderDebug();
         riggerIOC.setInjectinBindInfoDebug();
     }
     riggerIOC.setDebug = setDebug;
@@ -1525,79 +1775,49 @@ var riggerIOC;
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+/**
+* 消息与命令的绑定器
+* 一个消息可以同时绑定多个命令(即一个消息可以导致多个命令的执行)
+* 但一个命令不能同时被绑定到多个消息
+*/
 var riggerIOC;
 (function (riggerIOC) {
-    var CommandBindTuple = /** @class */ (function () {
-        function CommandBindTuple(cls) {
-            this.ctr = cls;
-            this.inst = null;
+    var EventCommandBinder = /** @class */ (function (_super) {
+        __extends(EventCommandBinder, _super);
+        function EventCommandBinder(injectionBinder) {
+            return _super.call(this, injectionBinder) || this;
         }
-        return CommandBindTuple;
-    }());
-    riggerIOC.CommandBindTuple = CommandBindTuple;
-})(riggerIOC || (riggerIOC = {}));
-/*
- * Copyright 2018 Yang Wu.
- *
- *	Licensed under the Apache License, Version 2.0 (the "License");
- *	you may not use this file except in compliance with the License.
- *	You may obtain a copy of the License at
- *
- *		http://www.apache.org/licenses/LICENSE-2.0
- *
- *		Unless required by applicable law or agreed to in writing, software
- *		distributed under the License is distributed on an "AS IS" BASIS,
- *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *		See the License for the specific language governing permissions and
- *		limitations under the License.
- */
-var riggerIOC;
-(function (riggerIOC) {
-    var EventCommandBindInfo = /** @class */ (function () {
-        function EventCommandBindInfo(msg) {
-            this.message = null;
-            this.message = msg;
-            this.bindTuples = [];
-        }
-        /**
-         * 绑定到指定命令
-         * @param cls
-         */
-        EventCommandBindInfo.prototype.to = function (cls) {
-            var infos = this.bindTuples;
-            var len = infos.length;
-            var tuple;
-            for (var i = 0; i < len; ++i) {
-                tuple = infos[i];
-                if (tuple.ctr === cls) {
-                    return this;
-                }
-            }
-            infos.push(new riggerIOC.CommandBindTuple(cls));
-            return this;
-        };
-        EventCommandBindInfo.prototype.toValue = function (value) {
-            // TODO 等待实现
-            return this;
-        };
-        EventCommandBindInfo.prototype.once = function () {
-            return this;
-        };
-        EventCommandBindInfo.prototype.inSequence = function () {
-            return this;
+        EventCommandBinder.prototype.dispose = function () {
+            throw new Error("NOT IMPLEMENTED");
         };
         /**
-         * 将绑定设置为单例模式
-         * ！！！对于Command而言，其总是单例的，此接口只是为了提醒使用者
+         * 绑定消息
+         * @param msg
          */
-        EventCommandBindInfo.prototype.toSingleton = function () {
-            throw new Error("command is always Singleton.");
+        EventCommandBinder.prototype.bind = function (msg) {
+            if (!this.commandsMap)
+                this.commandsMap = {};
+            var info = this.findBindInfo(msg);
+            if (!info)
+                return this.commandsMap[msg] = new riggerIOC.EventCommandBindInfo(msg);
+            return info;
         };
-        EventCommandBindInfo.prototype.dispose = function () {
+        EventCommandBinder.prototype.unbind = function (event) {
+            throw new Error("NOT IMPLEMENTED");
         };
-        return EventCommandBindInfo;
-    }());
-    riggerIOC.EventCommandBindInfo = EventCommandBindInfo;
+        /**
+         * 查找绑定消息
+         * @param msg
+         */
+        EventCommandBinder.prototype.findBindInfo = function (msg) {
+            var info = this.commandsMap[msg];
+            if (info)
+                return info;
+            return null;
+        };
+        return EventCommandBinder;
+    }(riggerIOC.CommandBinder));
+    riggerIOC.EventCommandBinder = EventCommandBinder;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -1659,98 +1879,6 @@ var riggerIOC;
         return MediationBindInfo;
     }());
     riggerIOC.MediationBindInfo = MediationBindInfo;
-})(riggerIOC || (riggerIOC = {}));
-/*
- * Copyright 2018 Yang Wu.
- *
- *	Licensed under the Apache License, Version 2.0 (the "License");
- *	you may not use this file except in compliance with the License.
- *	You may obtain a copy of the License at
- *
- *		http://www.apache.org/licenses/LICENSE-2.0
- *
- *		Unless required by applicable law or agreed to in writing, software
- *		distributed under the License is distributed on an "AS IS" BASIS,
- *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *		See the License for the specific language governing permissions and
- *		limitations under the License.
- */
-/**
-* 消息与命令的绑定器
-* 一个消息可以同时绑定多个命令(即一个消息可以导致多个命令的执行)
-* 但一个命令不能同时被绑定到多个消息
-*/
-var riggerIOC;
-(function (riggerIOC) {
-    var EventCommandBinder = /** @class */ (function (_super) {
-        __extends(EventCommandBinder, _super);
-        function EventCommandBinder(injectionBinder) {
-            return _super.call(this, injectionBinder) || this;
-        }
-        EventCommandBinder.prototype.dispose = function () {
-            throw new Error("NOT IMPLEMENTED");
-        };
-        /**
-         * 绑定消息
-         * @param msg
-         */
-        EventCommandBinder.prototype.bind = function (msg) {
-            if (!this.commandsMap)
-                this.commandsMap = {};
-            var info = this.findBindInfo(msg);
-            if (!info)
-                return this.commandsMap[msg] = new riggerIOC.EventCommandBindInfo(msg);
-            return info;
-        };
-        EventCommandBinder.prototype.unbind = function (event) {
-            throw new Error("NOT IMPLEMENTED");
-        };
-        /**
-         * 查找绑定消息
-         * @param msg
-         */
-        EventCommandBinder.prototype.findBindInfo = function (msg) {
-            var info = this.commandsMap[msg];
-            if (info)
-                return info;
-            return null;
-        };
-        return EventCommandBinder;
-    }(riggerIOC.CommandBinder));
-    riggerIOC.EventCommandBinder = EventCommandBinder;
-})(riggerIOC || (riggerIOC = {}));
-/*
-* Copyright 2018 Yang Wu.
-*
-*	Licensed under the Apache License, Version 2.0 (the "License");
-*	you may not use this file except in compliance with the License.
-*	You may obtain a copy of the License at
-*
-*		http://www.apache.org/licenses/LICENSE-2.0
-*
-*		Unless required by applicable law or agreed to in writing, software
-*		distributed under the License is distributed on an "AS IS" BASIS,
-*		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*		See the License for the specific language governing permissions and
-*		limitations under the License.
-*/
-/**
-* View和Mediator的绑定元组
-*/
-var riggerIOC;
-(function (riggerIOC) {
-    var ViewMediatorTuple = /** @class */ (function () {
-        function ViewMediatorTuple(view, mediator) {
-            this.view = view;
-            this.mediator = mediator;
-        }
-        ViewMediatorTuple.prototype.dispose = function () {
-            this.view = null;
-            this.mediator = null;
-        };
-        return ViewMediatorTuple;
-    }());
-    riggerIOC.ViewMediatorTuple = ViewMediatorTuple;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -1945,6 +2073,83 @@ var riggerIOC;
     riggerIOC.SignalCommandBindInfo = SignalCommandBindInfo;
 })(riggerIOC || (riggerIOC = {}));
 /*
+* Copyright 2018 Yang Wu.
+*
+*	Licensed under the Apache License, Version 2.0 (the "License");
+*	you may not use this file except in compliance with the License.
+*	You may obtain a copy of the License at
+*
+*		http://www.apache.org/licenses/LICENSE-2.0
+*
+*		Unless required by applicable law or agreed to in writing, software
+*		distributed under the License is distributed on an "AS IS" BASIS,
+*		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*		See the License for the specific language governing permissions and
+*		limitations under the License.
+*/
+/**
+* View和Mediator的绑定元组
+*/
+var riggerIOC;
+(function (riggerIOC) {
+    var ViewMediatorTuple = /** @class */ (function () {
+        function ViewMediatorTuple(view, mediator) {
+            this.view = view;
+            this.mediator = mediator;
+        }
+        ViewMediatorTuple.prototype.dispose = function () {
+            this.view = null;
+            this.mediator = null;
+        };
+        return ViewMediatorTuple;
+    }());
+    riggerIOC.ViewMediatorTuple = ViewMediatorTuple;
+})(riggerIOC || (riggerIOC = {}));
+/*
+ * Copyright 2018 Yang Wu.
+ *
+ *	Licensed under the Apache License, Version 2.0 (the "License");
+ *	you may not use this file except in compliance with the License.
+ *	You may obtain a copy of the License at
+ *
+ *		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *		Unless required by applicable law or agreed to in writing, software
+ *		distributed under the License is distributed on an "AS IS" BASIS,
+ *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *		See the License for the specific language governing permissions and
+ *		limitations under the License.
+ */
+var riggerIOC;
+(function (riggerIOC) {
+    var SignalCommandBinder = /** @class */ (function (_super) {
+        __extends(SignalCommandBinder, _super);
+        function SignalCommandBinder() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        /**
+         * 绑定一个信号
+         * 绑定后，信号将被注入为单例模式，并且同时会立即产生一个实例
+         * @param cls
+         */
+        SignalCommandBinder.prototype.bind = function (cls) {
+            // 将信号注入为单例,并返回对应的命令绑定信息
+            var info = new riggerIOC.SignalCommandBindInfo(this.injectionBinder.bind(cls).toSingleton().getInstance(), this.injectionBinder);
+            this.bindInfos.push(info);
+            return info;
+        };
+        SignalCommandBinder.prototype.unbind = function (sigObj, ifAll) {
+            if (ifAll === void 0) { ifAll = false; }
+            throw new Error("not implemented");
+            // for (let i: number = 0; i < this.bindInfos.length; ++i) {
+            // 	if()
+            // }
+        };
+        return SignalCommandBinder;
+    }(riggerIOC.CommandBinder));
+    riggerIOC.SignalCommandBinder = SignalCommandBinder;
+})(riggerIOC || (riggerIOC = {}));
+/*
  * Copyright 2018 Yang Wu.
  *
  *	Licensed under the Apache License, Version 2.0 (the "License");
@@ -2040,34 +2245,17 @@ var riggerIOC;
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
+/**
+ * 绑定信息类
+ */
 var riggerIOC;
 (function (riggerIOC) {
-    var SignalCommandBinder = /** @class */ (function (_super) {
-        __extends(SignalCommandBinder, _super);
-        function SignalCommandBinder() {
-            return _super !== null && _super.apply(this, arguments) || this;
+    var CommandBindInfo = /** @class */ (function () {
+        function CommandBindInfo() {
         }
-        /**
-         * 绑定一个信号
-         * 绑定后，信号将被注入为单例模式，并且同时会立即产生一个实例
-         * @param cls
-         */
-        SignalCommandBinder.prototype.bind = function (cls) {
-            // 将信号注入为单例,并返回对应的命令绑定信息
-            var info = new riggerIOC.SignalCommandBindInfo(this.injectionBinder.bind(cls).toSingleton().getInstance(), this.injectionBinder);
-            this.bindInfos.push(info);
-            return info;
-        };
-        SignalCommandBinder.prototype.unbind = function (sigObj, ifAll) {
-            if (ifAll === void 0) { ifAll = false; }
-            throw new Error("not implemented");
-            // for (let i: number = 0; i < this.bindInfos.length; ++i) {
-            // 	if()
-            // }
-        };
-        return SignalCommandBinder;
-    }(riggerIOC.CommandBinder));
-    riggerIOC.SignalCommandBinder = SignalCommandBinder;
+        return CommandBindInfo;
+    }());
+    riggerIOC.CommandBindInfo = CommandBindInfo;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -2510,78 +2698,31 @@ var riggerIOC;
     }(riggerIOC.BaseWaitable));
     riggerIOC.TaskExecutorLock = TaskExecutorLock;
 })(riggerIOC || (riggerIOC = {}));
+/*
+ * Copyright 2018 Yang Wu.
+ *
+ *	Licensed under the Apache License, Version 2.0 (the "License");
+ *	you may not use this file except in compliance with the License.
+ *	You may obtain a copy of the License at
+ *
+ *		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *		Unless required by applicable law or agreed to in writing, software
+ *		distributed under the License is distributed on an "AS IS" BASIS,
+ *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *		See the License for the specific language governing permissions and
+ *		limitations under the License.
+ */
 var riggerIOC;
 (function (riggerIOC) {
-    var ApplicationInjectionBinder = /** @class */ (function (_super) {
-        __extends(ApplicationInjectionBinder, _super);
-        function ApplicationInjectionBinder(appId, injectionBinder, owner) {
-            var _this = _super.call(this) || this;
-            _this.infos = {};
-            _this.appId = appId;
-            _this.owner = owner;
-            if (injectionBinder instanceof ApplicationInjectionBinder) {
-                _this.injectionBinder = injectionBinder.injectionBinder;
-            }
-            else {
-                _this.injectionBinder = injectionBinder;
-            }
-            return _this;
+    var CommandBindTuple = /** @class */ (function () {
+        function CommandBindTuple(cls) {
+            this.ctr = cls;
+            this.inst = null;
         }
-        ApplicationInjectionBinder.prototype.bind = function (cls) {
-            var info = this.injectionBinder.bind(cls);
-            info.appId = this.appId;
-            if (!this.infos)
-                this.infos = {};
-            var bindId = riggerIOC.InjectionWrapper.getId(cls);
-            this.infos[bindId] = info;
-            // 如果是debug状态，则进行统计
-            // if (ApplicationContext.debug) {
-            // 	let app: ApplicationContext = ApplicationContext.getApplication(this.appId);
-            // 	let old = app.injectionStatistics[bindId] || [];
-            // 	// 移除owner一样的
-            // 	let owner = this.owner;
-            // 	old = old.filter((v, idx, arr) => v.owner !== owner);
-            // 	old.push(new InjectionStatistics(bindId, owner, cls));
-            // 	app.injectionStatistics[bindId] = old;
-            // }
-            return info;
-        };
-        ApplicationInjectionBinder.prototype.registerInjection = function (target, attName) {
-            this.injectionBinder.registerInjection(target, attName);
-        };
-        /**
-         * 进行注入
-         * @param obj
-         */
-        ApplicationInjectionBinder.prototype.inject = function (obj) {
-            this.injectionBinder.inject(obj);
-        };
-        /**
-         * 解绑
-         * @param cls
-         */
-        ApplicationInjectionBinder.prototype.unbind = function (cls) {
-            this.injectionBinder.unbind(cls);
-            delete this.infos[riggerIOC.InjectionWrapper.getId(cls)];
-        };
-        /**
-         * 从绑定列表中找到指定的绑定信息
-         * @param ctr 指定的构造函数，是绑定信息的键
-         */
-        ApplicationInjectionBinder.prototype.findBindInfo = function (ctr) {
-            return this.injectionBinder.findBindInfo(ctr);
-        };
-        ApplicationInjectionBinder.prototype.dispose = function () {
-            for (var k in this.infos) {
-                this.unbind(this.infos[k].cls);
-            }
-            this.infos = {};
-            this.injectionBinder = null;
-            this.owner = null;
-        };
-        return ApplicationInjectionBinder;
-    }(riggerIOC.InjectionBinder));
-    riggerIOC.ApplicationInjectionBinder = ApplicationInjectionBinder;
+        return CommandBindTuple;
+    }());
+    riggerIOC.CommandBindTuple = CommandBindTuple;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -2748,17 +2889,53 @@ var riggerIOC;
  *		See the License for the specific language governing permissions and
  *		limitations under the License.
  */
-/**
- * 绑定信息类
- */
 var riggerIOC;
 (function (riggerIOC) {
-    var CommandBindInfo = /** @class */ (function () {
-        function CommandBindInfo() {
+    var EventCommandBindInfo = /** @class */ (function () {
+        function EventCommandBindInfo(msg) {
+            this.message = null;
+            this.message = msg;
+            this.bindTuples = [];
         }
-        return CommandBindInfo;
+        /**
+         * 绑定到指定命令
+         * @param cls
+         */
+        EventCommandBindInfo.prototype.to = function (cls) {
+            var infos = this.bindTuples;
+            var len = infos.length;
+            var tuple;
+            for (var i = 0; i < len; ++i) {
+                tuple = infos[i];
+                if (tuple.ctr === cls) {
+                    return this;
+                }
+            }
+            infos.push(new riggerIOC.CommandBindTuple(cls));
+            return this;
+        };
+        EventCommandBindInfo.prototype.toValue = function (value) {
+            // TODO 等待实现
+            return this;
+        };
+        EventCommandBindInfo.prototype.once = function () {
+            return this;
+        };
+        EventCommandBindInfo.prototype.inSequence = function () {
+            return this;
+        };
+        /**
+         * 将绑定设置为单例模式
+         * ！！！对于Command而言，其总是单例的，此接口只是为了提醒使用者
+         */
+        EventCommandBindInfo.prototype.toSingleton = function () {
+            throw new Error("command is always Singleton.");
+        };
+        EventCommandBindInfo.prototype.dispose = function () {
+        };
+        return EventCommandBindInfo;
     }());
-    riggerIOC.CommandBindInfo = CommandBindInfo;
+    riggerIOC.EventCommandBindInfo = EventCommandBindInfo;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.
@@ -2965,11 +3142,6 @@ var riggerIOC;
                     }
                     for (i = this.modules.length - 1; i >= 0; --i) {
                         this.injectionBinder.unbind(this.modules[i]);
-                        // let inst: ModuleContext = this.modulesInstance[i];
-                        // 实例可能比类型少
-                        // if(inst){
-                        // 	await inst.dispose();
-                        // }
                     }
                     // this.injectionBinder = null;
                     this.modules = null;
@@ -3477,6 +3649,51 @@ var riggerIOC;
         return Result;
     }());
     riggerIOC.Result = Result;
+})(riggerIOC || (riggerIOC = {}));
+var riggerIOC;
+(function (riggerIOC) {
+    var Utils = /** @class */ (function () {
+        function Utils() {
+        }
+        /**
+         * 判断给定值是否是字符串
+         * @param val
+         */
+        Utils.isString = function (val) {
+            return typeof val === "string";
+        };
+        /**
+         * 是否是数组
+         */
+        Utils.isArray = function (arr) {
+            return arr instanceof Array;
+        };
+        /**
+         * 检查是否为空或未定义
+         */
+        Utils.isNullOrUndefined = function (obj) {
+            return obj === null || obj === undefined;
+        };
+        /**
+         * 字符串是否为空或空串
+         */
+        Utils.isNullOrEmpty = function (str) {
+            return Utils.isNullOrUndefined(str) || str.length <= 0;
+        };
+        /**
+         * 判断值是否是一个数字(而不管是否可以转化成一个数字)
+         * @param {any} value
+         */
+        Utils.isNumber = function (value) {
+            if (Utils.isNullOrUndefined(value))
+                return false;
+            if (Utils.isString(value))
+                return false;
+            return !isNaN(value);
+        };
+        return Utils;
+    }());
+    riggerIOC.Utils = Utils;
 })(riggerIOC || (riggerIOC = {}));
 /*
  * Copyright 2018 Yang Wu.

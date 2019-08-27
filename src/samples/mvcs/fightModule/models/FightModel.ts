@@ -16,7 +16,7 @@ class FightModel extends riggerIOC.Model {
     dispose() {
         console.log('in fight model dispose, set fighter null')
         this.fighter = null;
-        throw new Error("a dispose error for testing");
+        // throw new Error("a dispose error for testing");
         super.dispose();
     }
 

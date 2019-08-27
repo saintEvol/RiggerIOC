@@ -36,6 +36,11 @@ class LoginModule extends riggerIOC.ModuleContext {
 
     bindInjections(): void {
         this.injectionBinder.bind(LoginSuccessSignal).toSingleton();
+
+        this.injectionBinder.bind("test").toValue("i am a test");
+        this.injectionBinder.bind(NamesConfig.LUCY).toValue(new Girl("Lucy"));
+        this.injectionBinder.bind(NamesConfig.BOB).toValue(new Boy("Bob"));
+        this.injectionBinder.bind(NamesConfig.GOD).toSingleton().to(Girl);
     }
 
     bindMediators(): void {

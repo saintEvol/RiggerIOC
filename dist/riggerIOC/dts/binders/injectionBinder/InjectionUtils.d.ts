@@ -120,7 +120,7 @@ declare module riggerIOC {
      * 注入装饰器
      * @param ctr
      */
-    function inject(ctr: any): (target: any, attrName: string, descripter?: any) => void;
+    function inject(ctr: Function | string): (target: any, attrName: string, descripter?: any) => void;
     /**
      * 反向映射装饰器,即以字段的值为键，以字段的键为值建立一个新的字段，只推荐常量用
      */
@@ -142,6 +142,6 @@ declare module riggerIOC {
      * @param target 原型对象
      * @param attrName 属性名
      */
-    function doInjectAttr(key: any, target: any, attrName: string): void;
+    function doInjectAttr(key: Function | string, target: any, attrName: string): void;
     function setDebug(): void;
 }

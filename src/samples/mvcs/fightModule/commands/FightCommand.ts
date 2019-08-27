@@ -4,6 +4,8 @@
 ///<reference path='../models/FightModel.ts'/>
 ///<reference path='./BaseFightCommand.ts'/>
 class FightCommand extends BaseFightCommand {
+    @riggerIOC.inject(NamesConfig.GOD)
+    private god: People;
     static idx: number = 1;
     constructor() {
         super();
@@ -15,6 +17,7 @@ class FightCommand extends BaseFightCommand {
 
     async execute() {
         console.log("start to fight");
+        this.god.whoAmI();
         let temp = FightCommand.idx++;
         while (!this.isCanceled()) {
             if (this.fightModel.isLive(temp)) {
