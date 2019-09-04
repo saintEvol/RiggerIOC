@@ -11,7 +11,8 @@ class FightModule extends riggerIOC.ModuleContext {
 	}
 
 	dispose(): void {
-		console.log(`now dispose fight module`)
+		console.log(`now dispose fight module`);
+		super.dispose();
 	}
 
 	bindInjections(): void {

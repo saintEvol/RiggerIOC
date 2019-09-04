@@ -267,6 +267,13 @@ module riggerIOC {
 		}
 	}
 
+	export class AnalyseResult {
+		stickInsts: InjectionTrack[] = [];
+		instsWithInjectionError: InjectionTrack[] = [];
+		instsWithDisposeError: InjectionTrack[] = [];
+		analyseReport: string = "";
+	}
+
 	export class ApplicationContextAnalyser {
 		public appId: string | number;
 		public injectionTracks: InjectionTrack[] = []
@@ -278,32 +285,35 @@ module riggerIOC {
 		/**
 		 * 分析
 		 */
-		public analyze(): string {
+		public analyze(): AnalyseResult {
+			let ret = new AnalyseResult();
 			// 未释放的
 			let stickyInsts = this.stickyInsts;
-			let ret = "======= 尚未释放的对象 ======\r\n"
+			ret.stickInsts = stickyInsts;
+			let retReport = "======= 尚未释放的对象 ======\r\n"
 			for (var i: number = 0; i < stickyInsts.length; ++i) {
-				ret += stickyInsts[i].toString() + "\r\n";
+				retReport += stickyInsts[i].toString() + "\r\n";
 			}
 
-			ret += "======= 注入时发生了错误的对象 ======\r\n"
+			retReport += "======= 注入时发生了错误的对象 ======\r\n"
 			let errorInsts = this.injectErrorInsts;
+			ret.instsWithInjectionError = errorInsts;
 			if (errorInsts.length > 0) {
 				for (var i: number = 0; i < errorInsts.length; ++i) {
-					ret += errorInsts[i].toString() + "\r\n";
+					retReport += errorInsts[i].toString() + "\r\n";
 				}
 			}
-			else{
-				ret += "\r\n"
+			else {
+				retReport += "\r\n"
 			}
 
 
-			ret += "====== 析构时发生错误的对象 =====\r\n"
-			errorInsts = this.disposeErrorInsts;
+			retReport += "====== 析构时发生错误的对象 =====\r\n"
+			ret.instsWithDisposeError = errorInsts = this.disposeErrorInsts;
 			for (var j: number = 0; j < errorInsts.length; ++j) {
-				ret += errorInsts[j].toString() + "\r\n";
+				retReport += errorInsts[j].toString() + "\r\n";
 			}
-
+			ret.analyseReport = retReport;
 			return ret;
 		}
 

@@ -69,6 +69,12 @@ declare module riggerIOC {
         protected bindCommandBinder(): void;
         protected bindMediationBinder(): void;
     }
+    class AnalyseResult {
+        stickInsts: InjectionTrack[];
+        instsWithInjectionError: InjectionTrack[];
+        instsWithDisposeError: InjectionTrack[];
+        analyseReport: string;
+    }
     class ApplicationContextAnalyser {
         appId: string | number;
         injectionTracks: InjectionTrack[];
@@ -76,7 +82,7 @@ declare module riggerIOC {
         /**
          * 分析
          */
-        analyze(): string;
+        analyze(): AnalyseResult;
         /**
          * 获取未释放的追踪信息
          */

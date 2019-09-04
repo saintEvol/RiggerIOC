@@ -17,16 +17,16 @@ class GameMain {
         await riggerIOC.waitForSeconds(5000);
         console.log(`[time:${Laya.Browser.now()}]now stop app`);
         await app.dispose();
-        let tracks = app.analyser.stickyInsts;
 
 
         while (true) {
-            // for (var i: number = 0; i < tracks.length; ++i) {
-            //     console.log(`${tracks[i]}`);
-            // }
+            let tracks = app.analyser.stickyInsts;
+            for (var i: number = 0; i < tracks.length; ++i) {
+                console.log(`${tracks[i]}`);
+            }
 
-            let str = app.analyser.analyze();
-            console.log(str);
+            let ret = app.analyser.analyze();
+            console.log(ret.analyseReport);
             await riggerIOC.waitForSeconds(2000);
         }
         // console.log(`[time:${Laya.Browser.now()}]stop app finished`)

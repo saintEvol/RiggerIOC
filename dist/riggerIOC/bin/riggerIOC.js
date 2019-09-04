@@ -3248,6 +3248,16 @@ var riggerIOC;
         return ApplicationContext;
     }(riggerIOC.BaseWaitable));
     riggerIOC.ApplicationContext = ApplicationContext;
+    var AnalyseResult = /** @class */ (function () {
+        function AnalyseResult() {
+            this.stickInsts = [];
+            this.instsWithInjectionError = [];
+            this.instsWithDisposeError = [];
+            this.analyseReport = "";
+        }
+        return AnalyseResult;
+    }());
+    riggerIOC.AnalyseResult = AnalyseResult;
     var ApplicationContextAnalyser = /** @class */ (function () {
         function ApplicationContextAnalyser(app) {
             this.injectionTracks = [];
@@ -3258,27 +3268,31 @@ var riggerIOC;
          * 分析
          */
         ApplicationContextAnalyser.prototype.analyze = function () {
+            var ret = new AnalyseResult();
             // 未释放的
             var stickyInsts = this.stickyInsts;
-            var ret = "======= 尚未释放的对象 ======\r\n";
+            ret.stickInsts = stickyInsts;
+            var retReport = "======= 尚未释放的对象 ======\r\n";
             for (var i = 0; i < stickyInsts.length; ++i) {
-                ret += stickyInsts[i].toString() + "\r\n";
+                retReport += stickyInsts[i].toString() + "\r\n";
             }
-            ret += "======= 注入时发生了错误的对象 ======\r\n";
+            retReport += "======= 注入时发生了错误的对象 ======\r\n";
             var errorInsts = this.injectErrorInsts;
+            ret.instsWithInjectionError = errorInsts;
             if (errorInsts.length > 0) {
                 for (var i = 0; i < errorInsts.length; ++i) {
-                    ret += errorInsts[i].toString() + "\r\n";
+                    retReport += errorInsts[i].toString() + "\r\n";
                 }
             }
             else {
-                ret += "\r\n";
+                retReport += "\r\n";
             }
-            ret += "====== 析构时发生错误的对象 =====\r\n";
-            errorInsts = this.disposeErrorInsts;
+            retReport += "====== 析构时发生错误的对象 =====\r\n";
+            ret.instsWithDisposeError = errorInsts = this.disposeErrorInsts;
             for (var j = 0; j < errorInsts.length; ++j) {
-                ret += errorInsts[j].toString() + "\r\n";
+                retReport += errorInsts[j].toString() + "\r\n";
             }
+            ret.analyseReport = retReport;
             return ret;
         };
         Object.defineProperty(ApplicationContextAnalyser.prototype, "stickyInsts", {
