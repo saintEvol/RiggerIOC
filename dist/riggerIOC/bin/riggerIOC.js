@@ -3603,7 +3603,8 @@ var riggerIOC;
         InjectionWrapper.wrap = function (klass) {
             if (!klass)
                 return null;
-            if (klass[InjectionWrapper.ID_KEY])
+            // 使用hasOwnProperty进行判断，防止误取到其父类的
+            if (klass.hasOwnProperty(InjectionWrapper.ID_KEY))
                 return klass[InjectionWrapper.ID_KEY];
             var id = InjectionWrapper.mallocId();
             klass[InjectionWrapper.ID_KEY] = id;
@@ -3613,6 +3614,8 @@ var riggerIOC;
             delete klass[InjectionWrapper.ID_KEY];
         };
         InjectionWrapper.getId = function (klass) {
+            if (!klass.hasOwnProperty(InjectionWrapper.ID_KEY))
+                return null;
             return klass[InjectionWrapper.ID_KEY];
         };
         InjectionWrapper.mallocId = function () {
