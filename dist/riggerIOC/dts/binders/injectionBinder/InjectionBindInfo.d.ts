@@ -53,6 +53,8 @@ declare module riggerIOC {
          * @param value
          */
         toValueDebug(value: any): InjectionBindInfo;
+        private init;
+        private initDebug;
     }
     function setInjectinBindInfoDebug(): void;
 }

@@ -420,8 +420,7 @@ var riggerIOC;
             this.isSingleton = false;
             this.mInstance = null;
             this.isToValue = false;
-            this.cls = ctr;
-            this.keyType = keyType;
+            this.init(ctr, keyType);
         }
         Object.defineProperty(InjectionBindInfo.prototype, "realClass", {
             get: function () {
@@ -572,12 +571,34 @@ var riggerIOC;
             }
             return this;
         };
+        InjectionBindInfo.prototype.init = function (ctr, keyType) {
+            if (keyType === void 0) { keyType = BindInfoKeyType.CONSTRUCTOR; }
+            this.cls = ctr;
+            this.keyType = keyType;
+        };
+        InjectionBindInfo.prototype.initDebug = function (ctr, keyType) {
+            if (keyType === void 0) { keyType = BindInfoKeyType.CONSTRUCTOR; }
+            this.cls = ctr;
+            this.keyType = keyType;
+            // DEBUG追踪信息
+            var id;
+            switch (keyType) {
+                case BindInfoKeyType.CONSTRUCTOR:
+                    id = ctr["name"];
+                    break;
+                default:
+                    id = ctr;
+                    break;
+            }
+            this["riggerIOC_identifier"] = id;
+        };
         return InjectionBindInfo;
     }());
     riggerIOC.InjectionBindInfo = InjectionBindInfo;
     function setInjectinBindInfoDebug() {
         InjectionBindInfo.prototype.toValue = InjectionBindInfo.prototype.toValueDebug;
         InjectionBindInfo.prototype.getInstance = InjectionBindInfo.prototype.getInstanceDebug;
+        InjectionBindInfo.prototype["init"] = InjectionBindInfo.prototype["initDebug"];
     }
     riggerIOC.setInjectinBindInfoDebug = setInjectinBindInfoDebug;
 })(riggerIOC || (riggerIOC = {}));

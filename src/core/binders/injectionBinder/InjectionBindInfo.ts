@@ -62,8 +62,7 @@ module riggerIOC {
 		}
 
 		constructor(ctr: Function | string, keyType: BindInfoKeyType = BindInfoKeyType.CONSTRUCTOR) {
-			this.cls = ctr;
-			this.keyType = keyType;
+			this.init(ctr, keyType);
 		}
 
 		public dispose() {
@@ -184,11 +183,34 @@ module riggerIOC {
 			return this;
 		}
 
+		private init(ctr: Function | string, keyType: BindInfoKeyType = BindInfoKeyType.CONSTRUCTOR):void{
+			this.cls = ctr;
+			this.keyType = keyType;
+		}
+
+		private initDebug(ctr: Function | string, keyType: BindInfoKeyType = BindInfoKeyType.CONSTRUCTOR): void{
+			this.cls = ctr;
+			this.keyType = keyType;
+
+			// DEBUG追踪信息
+			let id;
+			switch (keyType) {
+				case BindInfoKeyType.CONSTRUCTOR:
+					id = ctr["name"];
+					break;
+				default:
+					id = ctr;
+					break;
+			}
+			this["riggerIOC_identifier"] = id;
+		}
+
 	}
 
 	export function setInjectinBindInfoDebug() {
 		InjectionBindInfo.prototype.toValue = InjectionBindInfo.prototype.toValueDebug;
 		InjectionBindInfo.prototype.getInstance = InjectionBindInfo.prototype.getInstanceDebug;
+		InjectionBindInfo.prototype["init"] = InjectionBindInfo.prototype["initDebug"];
 	}
 
 }
